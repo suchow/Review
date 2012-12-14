@@ -1,3 +1,7 @@
+body {
+  padding: 40px;
+}
+
 /* CSS for welcome screen */
 .container-narrow {
   margin: 0 auto;
@@ -24,7 +28,6 @@
 /* CSS for uploading a figure screen */
 #get-review {
   display: none;
-  padding: 40px;
 }
 
 #get-review-upload-preview {
