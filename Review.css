@@ -19,3 +19,22 @@
   font-size: 21px;
   padding: 14px 24px;
 }
+
+
+/* CSS for uploading a figure screen */
+#get-review {
+  display: none;
+  padding: 40px;
+}
+
+#get-review-upload-preview {
+  display: none;
+}
+
+#get-review-field, #get-review-description {
+  width: 400px;
+}
+
+#get-review-field {
+  margin-top: 50px;
+}

@@ -1,9 +1,11 @@
 <head>
   <title>Review</title>
+  <script src="https://api.filepicker.io/v0/filepicker.js"></script>
 </head>
 
 <body>
   {{> welcome}}
+	{{> getreview}}
 </body>
 
 <template name="welcome">
@@ -15,5 +17,21 @@
 			<input type="submit" id="welcome-get-review" style="width:200px;" class="btn btn-large btn-primary" value="Get reviewed">	
 			<input type="submit" id="welcome-write-review" style="width:200px;" class="btn btn-large btn-info" value="Write a review">
 		</div>
+	</div>
+</template>
+
+<template name="getreview">
+	<div id="get-review">
+		<img src="" id="get-review-upload-preview" alt="uploaded figure" />
+		<form>
+			<fieldset>
+				<div id="get-review-upload-fp-wrapper">
+					<p><input type="filepicker" id="get-review-upload-fp" data-fp-button-class="btn btn-large btn-info" data-fp-button-text="Upload figure" /></p>
+				</div>
+				<p><input type="text" id="get-review-field" placeholder="Pick your field (e.g., neurobiology, solid state physics)" size="65" /></p>
+				<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
+			</fieldset>
+			<p><input type="button" id="get-review-submit-button" value="Get your review" class="btn btn-large btn-primary" /></p>
+		</form>
 	</div>
 </template>
