@@ -1,13 +1,17 @@
 if (Meteor.isClient) {
-  Template.hello.greeting = function () {
-    return "Welcome to Review.";
-  };
+  // Template.hello.greeting = function () {
+  //   return "Welcome to Review.";
+  // };
 
-  Template.hello.events({
-    'click input' : function () {
-      // template data, if any, is available in 'this'
+  Template.welcome.events({
+    'click #welcome-write-review' : function () {
       if (typeof console !== 'undefined')
-        console.log("You pressed the button");
+        console.log("You pressed to write a review");
+    },
+    
+    'click #welcome-get-review' : function () {
+      if (typeof console !== 'undefined')
+        console.log("You pressed the to get a review");
     }
   });
 }
