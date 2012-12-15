@@ -41,3 +41,8 @@ body {
 #get-review-field {
   margin-top: 50px;
 }
+
+/* CSS for login */
+#login {
+  float: right;
+}
