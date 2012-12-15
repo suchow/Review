@@ -24,12 +24,13 @@ body {
   padding: 14px 24px;
 }
 
-
-/* CSS for uploading a figure screen */
-#get-review {
-  display: none;
+#welcome-get-review, #welcome-write-review, #welcome-rate-review {
+  width: 200px;
+  margin-bottom: 4px;
 }
 
+
+/* CSS for uploading a figure screen */
 #get-review-upload-preview {
   display: none;
   max-width: 600px;
@@ -47,10 +48,6 @@ body {
 
 
 /* CSS for writing a review screen */
-#write-review {
-  display: none;
-}
-
 #write-review-fig-preview {
   max-width: 600px;
 }

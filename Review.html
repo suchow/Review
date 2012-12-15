@@ -20,8 +20,9 @@
 	  	<h1>Figure review</h1>
 		  <!-- <p>{{greeting}}</p> -->
 	    <p class="lead">Looking to get your figure reviewed, <br/>or to review someone else's?</p>
-			<input type="submit" id="welcome-get-review" style="width:200px;" class="btn btn-large btn-primary" value="Get reviewed">	
-			<input type="submit" id="welcome-write-review" style="width:200px;" class="btn btn-large btn-info" value="Write a review">
+			<input type="submit" id="welcome-get-review" class="btn btn-large btn-primary" value="Get a review"><br/>
+			<input type="submit" id="welcome-write-review" class="btn btn-large btn-info" value="Write a review"><br/>
+			<input type="submit" id="welcome-rate-review" class="btn btn-large btn-warning" value="Rate a review">
 		</div>
 	</div>
 		{{/if}}
@@ -43,6 +44,7 @@
 			<p><input type="button" id="get-review-submit-button" value="Get your review" class="btn btn-large btn-primary" /></p>
 		</form>
 	</div>
+	{{/if}}
 </template>
 
 <template name="writereview">

@@ -13,10 +13,6 @@ if (Meteor.isClient) {
     
   Template.writereview.events({
     'click #write-review-submit-button' : function () {
-      changeview('write-review', 'welcome');
-      var id = Session.get('fig_id_to_review');
-      console.log(id);
-      Figures.update(id, {
       
       // create a new review record
       var id = Reviews.insert({
