@@ -9,6 +9,7 @@
 	</div>
   {{> welcome}}
 	{{> getreview}}
+	{{> writereview}}
 </body>
 
 <template name="welcome">
@@ -35,6 +36,19 @@
 				<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
 			</fieldset>
 			<p><input type="button" id="get-review-submit-button" value="Get your review" class="btn btn-large btn-primary" /></p>
+		</form>
+	</div>
+</template>
+
+<template name="writereview">
+	<div id="write-review">
+		<p>Review the following figure:</p>
+		<img id="write-review-fig-preview" alt="uploaded figure" />
+		<form>
+			<fieldset>
+				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review."></textarea></p>
+			<fieldset>
+			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn-large btn-primary" /></p>
 		</form>
 	</div>
 </template>

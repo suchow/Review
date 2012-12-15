@@ -1,14 +1,22 @@
 Figures = new Meteor.Collection("figures");
 
 if (Meteor.isClient) {
-  // Template.hello.greeting = function () {
-  //   return "Welcome to Review.";
-  // };
+  
+  Template.writereview.events({
+    'click #write-review-submit-button' : function () {
+      changeview('write-review', 'welcome');
+      var id = Session.get('fig_id_to_review');
+      console.log(id);
+      Figures.update(id, {
+        $push : { reviews: document.getElementById("write-review-description").value }
+      });
+    }
+  });
 
   Template.welcome.events({
     'click #welcome-write-review' : function () {
-      if (typeof console !== 'undefined')
-        console.log("You pressed to write a review");
+      showfiguretoreview();
+      changeview('welcome', 'write-review');
     },
     
     'click #welcome-get-review' : function () {
@@ -28,12 +36,14 @@ if (Meteor.isClient) {
     'click #get-review-submit-button' : function () {      
       // create a new figure
       var id = Figures.insert({
-           start_time: Date.now(),
+      submission_time: Date.now(),
            figure_url: Session.get('figure_url'),
                fields: document.getElementById("get-review-field").value,
           description: document.getElementById("get-review-description").value,
+              reviews: Array(), // list of review _id's
+         good_reviews: 0
       });
-      console.log(Figures.findOne({_id: id}));   
+      showfiguretoreview();
       changeview('get-review', 'write-review');
     }
   });
@@ -42,6 +52,12 @@ if (Meteor.isClient) {
     filepicker.setKey("AcN4KNYMSeats1v5zAAhMz");
     filepicker.constructWidget(document.getElementById('get-review-upload-fp'));
   };
+  
+  function showfiguretoreview() {
+    var fig = Figures.findOne({}, {sort : {good_reviews:1, submission_time:1}});
+    Session.set('fig_id_to_review', fig._id);
+    document.getElementById('write-review-fig-preview').src = fig.figure_url;
+  }
   
   function changeview(id1,id2) {
     document.getElementById(id1).style.display = "none";
