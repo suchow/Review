@@ -13,6 +13,8 @@
 </body>
 
 <template name="welcome">
+	{{#if newuser}}
+		{{#if isbeingwelcomed}}
 	<div id="welcome" class="container-narrow">
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>
@@ -22,9 +24,12 @@
 			<input type="submit" id="welcome-write-review" style="width:200px;" class="btn btn-large btn-info" value="Write a review">
 		</div>
 	</div>
+		{{/if}}
+	{{/if}}
 </template>
 
 <template name="getreview">
+	{{#if issubmitting}}
 	<div id="get-review">
 		<img src="" id="get-review-upload-preview" alt="uploaded figure" />
 		<form>
@@ -41,9 +46,10 @@
 </template>
 
 <template name="writereview">
+	{{#if isreviewing}}
 	<div id="write-review">
 		<p>Review the following figure:</p>
-		<img id="write-review-fig-preview" alt="uploaded figure" />
+		<img src="{{figuretoreview}}" id="write-review-fig-preview" alt="uploaded figure" />
 		<form>
 			<fieldset>
 				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review."></textarea></p>
@@ -51,4 +57,5 @@
 			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn-large btn-primary" /></p>
 		</form>
 	</div>
+	{{/if}}
 </template>
