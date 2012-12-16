@@ -78,8 +78,11 @@ if (Meteor.isClient) {
   Template.writereview.figuretoreview = function () {
     return Session.get('fig_to_review').figure_url;
   };
-
   
+  Template.writereview.figuretoreviewfields = function () {
+    return Session.get('fig_to_review').fields;
+  };
+
   // 
   // Templates for the submitting view
   //

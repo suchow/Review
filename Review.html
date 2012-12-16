@@ -21,9 +21,9 @@
 	  	<h1>Figure review</h1>
 		  <!-- <p>{{greeting}}</p> -->
 	    <p class="lead">Looking to get your figure reviewed, <br/>or to review someone else's?</p>
-			<input type="submit" id="welcome-get-review" class="btn  btn-primary" value="Get a review">
-			<input type="submit" id="welcome-write-review" class="btn  btn-info" value="Write a review">
-			<input type="submit" id="welcome-rate-review" class="btn btn-warning" value="Rate a review">
+			<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i> Get a review</button>
+			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i> Write a review</button>
+			<button type="submit" id="welcome-rate-review" class="btn btn-warning"><i class="icon-ok icon-white"></i> Rate a review</button>
 		</div>
 	</div>
 		{{/if}}
@@ -52,7 +52,8 @@
 	{{#if isreviewing}}
 	<div id="write-review">
 		<p>Review the following figure:</p>
-		<img src="{{figuretoreview}}" id="write-review-fig-preview" alt="uploaded figure" />
+		<p><img src="{{figuretoreview}}" id="write-review-fig-preview" alt="uploaded figure" /></p>
+		<p>Fields: {{figuretoreviewfields}}</p>
 		<form>
 			<fieldset>
 				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review."></textarea></p>
