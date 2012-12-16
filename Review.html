@@ -4,7 +4,7 @@
 </head>
 
 <body>
-	<div id="container">		
+	<div id="container">				
 		<div id="login">
 			{{loginButtons align="right"}}
 		</div>
@@ -16,19 +16,22 @@
 </body>
 
 <template name="welcome">
-	{{#if newuser}}
-		{{#if isbeingwelcomed}}
+	{{#if isbeingwelcomed}}
+		<!-- {{#if lackscredit}}	
+			<div class="alert" style="width: 50%;">
+			  <button type="button" class="close" data-dismiss="alert">&times;</button>
+			  <strong>Heads up!</strong> You submitted a figure, but haven't yet reviewed, rated, or logged in. 
+			</div>
+		{{/if}} -->
 	<div id="welcome" class="container-narrow">
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>
-		  <!-- <p>{{greeting}}</p> -->
-	    <p class="lead">Looking to get your figure reviewed, <br/>or to review someone else's?</p>
+	    <p class="lead">Looking to get your figure reviewed, or to review someone else's?</p>
 			<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i> Get a review</button>
 			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i> Write a review</button>
 			<button type="submit" id="welcome-rate-review" class="btn btn-warning"><i class="icon-ok icon-white"></i> Rate a review</button>
 		</div>
 	</div>
-		{{/if}}
 	{{/if}}
 </template>
 

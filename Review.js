@@ -7,7 +7,7 @@ if (Meteor.isClient) {
   Session.set('isbeingwelcomed', true);
   Session.set('isreviewing', false);
   Session.set('issubmitting', false);
-  Session.get('israting', false);
+  Session.set('israting', false);
   
   // 
   // Templates for the welcome view
