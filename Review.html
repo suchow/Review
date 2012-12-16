@@ -53,9 +53,10 @@
 <template name="writereview">
 	{{#if isreviewing}}
 	<div id="write-review">
-		<p>Review the following figure:</p>
+		<p>Please review the following figure:</p>
 		<p><img src="{{figuretoreview}}" id="write-review-fig-preview" alt="uploaded figure" /></p>
-		<p>Fields: {{figuretoreviewfields}}</p>
+		<p><strong>Field:</strong> {{figuretoreviewfields}}</p>
+		<p><strong>Description:</strong> {{figuretoreviewdescription}}</p>
 		<form>
 			<fieldset>
 				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review."></textarea></p>
