@@ -10,6 +10,7 @@
   {{> welcome}}
 	{{> getreview}}
 	{{> writereview}}
+	{{> ratereview}}
 </body>
 
 <template name="welcome">
@@ -20,9 +21,9 @@
 	  	<h1>Figure review</h1>
 		  <!-- <p>{{greeting}}</p> -->
 	    <p class="lead">Looking to get your figure reviewed, <br/>or to review someone else's?</p>
-			<input type="submit" id="welcome-get-review" class="btn btn-large btn-primary" value="Get a review"><br/>
-			<input type="submit" id="welcome-write-review" class="btn btn-large btn-info" value="Write a review"><br/>
-			<input type="submit" id="welcome-rate-review" class="btn btn-large btn-warning" value="Rate a review">
+			<input type="submit" id="welcome-get-review" class="btn  btn-primary" value="Get a review"><br/>
+			<input type="submit" id="welcome-write-review" class="btn  btn-info" value="Write a review"><br/>
+			<input type="submit" id="welcome-rate-review" class="btn btn-warning" value="Rate a review">
 		</div>
 	</div>
 		{{/if}}
@@ -59,5 +60,17 @@
 			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn-large btn-primary" /></p>
 		</form>
 	</div>
+	{{/if}}
+</template>
+
+<template name="ratereview">
+	{{#if israting}}
+	<p>Please rate the following review:</p>
+	<blockquote><p>{{reviewtorate}}</p></blockquote>
+	<p>
+		Is it acceptable? 
+		<button class="btn btn-small btn-success" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
+		<button class="btn btn-small btn-danger" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
+	</p>
 	{{/if}}
 </template>

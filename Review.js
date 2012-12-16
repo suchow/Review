@@ -2,46 +2,17 @@ Figures = new Meteor.Collection("figures");
 Reviews = new Meteor.Collection("reviews");
 
 if (Meteor.isClient) {
-  
+
+  // start off in welcoming mode
+  Session.set('isbeingwelcomed', true);
   Session.set('isreviewing', false);
   Session.set('issubmitting', false);
-  Session.set('isbeingwelcomed', true);
+  Session.get('israting', false);
   
-  Template.writereview.isreviewing = function () {
-    return Session.get('isreviewing');
-  };
-    
-  Template.writereview.events({
-    'click #write-review-submit-button' : function () {
-      
-      // create a new review record
-      var id = Reviews.insert({
-      submission_time: Date.now(),
-              creator: -1,
-           figure_url: Session.get('fig_id_to_review'),
-                 text: document.getElementById("write-review-description").value,
-              ratings: new Array() 
-      });
-      
-      // update figure record
-      Figures.update(Session.get('fig_id_to_review'), {
-        $push : { reviews: id }
-      });
-      
-      Session.set('isreviewing', false);
-      Session.set('isbeingwelcomed', true);
-    }
-  });
+  // 
+  // Templates for the welcome view
+  //
   
-  Template.writereview.rendered = function () {
-    console.log('The template writereview was just rendered.');
-  };
-  
-  Template.writereview.figuretoreview = function () {
-    var fig = Figures.findOne({}, {sort : {good_reviews:1, submission_time:1}});
-    return fig.figure_url;
-  };
-
   Template.welcome.newuser = function () {
     if(Meteor.user() === null)
       return true;
@@ -55,15 +26,63 @@ if (Meteor.isClient) {
 
   Template.welcome.events({
     'click #welcome-write-review' : function () {
+      var fig = Figures.findOne({}, {sort : {good_reviews:1, submission_time:1}});
+      Session.set('fig_to_review', fig);
       Session.set('isbeingwelcomed', false);
-      Session.set('isreviewing', true);
+      Session.set('isreviewing', true);      
     },
     
     'click #welcome-get-review' : function () {
       Session.set('isbeingwelcomed', false);
       Session.set('issubmitting', true);
+    },
+    
+    'click #welcome-rate-review' : function () {
+      Session.set('isbeingwelcomed', false);
+      Session.set('israting', true);
+      Session.set('reviewtorate', Reviews.findOne({}, {sort : { num_ratings:1, submission_time:1}}));
     }
   });
+  
+  // 
+  // Templates for the reviewing screen
+  //
+  
+  Template.writereview.isreviewing = function () {
+    return Session.get('isreviewing');
+  };
+    
+  Template.writereview.events({
+    'click #write-review-submit-button' : function () {
+      
+      // create a new review record
+     var id = Reviews.insert({
+      submission_time: Date.now(),
+              creator: -1,
+            figure_id: Session.get('fig_to_review')._id,
+                 text: document.getElementById("write-review-description").value,
+              ratings: new Array(),
+          num_ratings: 0
+      });
+      
+      // update figure record
+      Figures.update(Session.get('fig_to_review')._id, {
+        $push : { reviews: id }
+      });
+      
+      Session.set('isreviewing', false);
+      Session.set('isbeingwelcomed', true);
+    }
+  });
+  
+  Template.writereview.figuretoreview = function () {
+    return Session.get('fig_to_review').figure_url;
+  };
+
+  
+  // 
+  // Templates for the submitting view
+  //
   
   Template.getreview.issubmitting = function () {
     return Session.get('issubmitting');
@@ -91,7 +110,7 @@ if (Meteor.isClient) {
          good_reviews: 0
       });
       Session.set('issubmitting', false);
-      Session.set('isreviewing', true);
+      Session.set('isbeingwelcomed', true);
       scroll(0,0);
     }
   });
@@ -100,7 +119,46 @@ if (Meteor.isClient) {
     filepicker.setKey("AcN4KNYMSeats1v5zAAhMz");
     filepicker.constructWidget(document.getElementById('get-review-upload-fp'));
   };
-
+  
+  // 
+  // Templates for the rating view
+  //
+  Template.ratereview.israting = function () {
+    return Session.get('israting');
+  };
+  
+  Template.ratereview.reviewtorate = function () {
+    return Session.get('reviewtorate').text;
+  };
+  
+  Template.ratereview.figuretoratereview = function () {
+    return Session.get('reviewtorate').figure_url;
+  };
+  
+  Template.ratereview.events({
+    'click #rate-review-yes' : function () {
+      var review = Session.get('reviewtorate');
+      Reviews.update(review._id, {
+        $push : { ratings: 1 },
+        $inc  : { num_ratings: 1 }
+      });
+      // only do this the first time
+      Figures.update(review.figure_id, {
+        $inc : { good_reviews: 1 }
+      });
+      Session.set('israting', false);
+      Session.set('isbeingwelcomed', true);
+    },
+    
+    'click #rate-review-no' : function () {
+      Reviews.update(Session.get('reviewtorate'), {
+        $push : { ratings: 0 },
+        $inc  : { num_ratings: 1 }
+      });
+      Session.set('israting', false);
+      Session.set('isbeingwelcomed', true);
+    }
+  });
 }
 
 if (Meteor.isServer) {
