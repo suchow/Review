@@ -21,8 +21,8 @@
 	  	<h1>Figure review</h1>
 		  <!-- <p>{{greeting}}</p> -->
 	    <p class="lead">Looking to get your figure reviewed, <br/>or to review someone else's?</p>
-			<input type="submit" id="welcome-get-review" class="btn  btn-primary" value="Get a review"><br/>
-			<input type="submit" id="welcome-write-review" class="btn  btn-info" value="Write a review"><br/>
+			<input type="submit" id="welcome-get-review" class="btn  btn-primary" value="Get a review">
+			<input type="submit" id="welcome-write-review" class="btn  btn-info" value="Write a review">
 			<input type="submit" id="welcome-rate-review" class="btn btn-warning" value="Rate a review">
 		</div>
 	</div>
@@ -37,12 +37,12 @@
 		<form>
 			<fieldset>
 				<div id="get-review-upload-fp-wrapper">
-					<p><input type="filepicker" id="get-review-upload-fp" data-fp-button-class="btn btn-large btn-info" data-fp-button-text="Upload figure" /></p>
+					<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" /></p>
 				</div>
 				<p><input type="text" id="get-review-field" placeholder="Pick your field (e.g., neurobiology, solid state physics)" size="65" /></p>
 				<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
 			</fieldset>
-			<p><input type="button" id="get-review-submit-button" value="Get your review" class="btn btn-large btn-primary" /></p>
+			<p><input type="button" id="get-review-submit-button" value="Submit for review" class="btn btn btn-primary" /></p>
 		</form>
 	</div>
 	{{/if}}
@@ -57,7 +57,7 @@
 			<fieldset>
 				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review."></textarea></p>
 			<fieldset>
-			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn-large btn-primary" /></p>
+			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn btn-info" /></p>
 		</form>
 	</div>
 	{{/if}}
