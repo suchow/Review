@@ -1,5 +1,22 @@
+/* CSS for background */
 body {
-  padding: 40px;
+  background: url('body-bg.jpg') #ebebeb;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+#container {
+  -webkit-box-shadow: 0 1px 3px rgba(100, 100, 100, 0.45);
+  -moz-box-shadow: 0 1px 3px rgba(100, 100, 100, 0.45);
+  box-shadow: 0 1px 3px rgba(100, 100, 100, 0.45);
+  border: 1px solid #c6c6c6;
+  margin: 2%;
+  max-width: 880px;
+  padding: 3.125% 6.25%;
+}
+
+#container,
+.post-title h4 {
+  background: #ffffff;
 }
 
 /* CSS for welcome screen */
@@ -27,6 +44,10 @@ body {
 
 
 /* CSS for uploading a figure screen */
+#get-review {
+  margin-top: 25px;
+}
+
 #get-review-upload-preview {
   display: none;
   max-width: 600px;
@@ -50,6 +71,10 @@ body {
 
 
 /* CSS for writing a review screen */
+#write-review {
+  margin-top: 25px;
+}
+
 #write-review-fig-preview {
   max-width: 600px;
 }
@@ -58,6 +83,11 @@ body {
   margin-top: 50px;
   width: 500px;
   background: #eeeeee;
+}
+
+/* CSS for rating a review screen */
+#rate-review {
+  margin-top: 25px;
 }
 
 /* CSS for login */

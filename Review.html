@@ -4,13 +4,15 @@
 </head>
 
 <body>
-	<div id="login">
-		{{loginButtons align="right"}}
+	<div id="container">		
+		<div id="login">
+			{{loginButtons align="right"}}
+		</div>
+		 {{> welcome}}
+		{{> getreview}}
+		{{> writereview}}
+		{{> ratereview}}
 	</div>
-  {{> welcome}}
-	{{> getreview}}
-	{{> writereview}}
-	{{> ratereview}}
 </body>
 
 <template name="welcome">
@@ -66,12 +68,14 @@
 
 <template name="ratereview">
 	{{#if israting}}
-	<p>Please rate the following review:</p>
-	<blockquote><p>{{reviewtorate}}</p></blockquote>
-	<p>
-		Is it acceptable? 
-		<button class="btn btn-small btn-success" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
-		<button class="btn btn-small btn-danger" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
-	</p>
+	<div id="rate-review">
+		<p>Please rate the following review:</p>
+		<blockquote><p>{{reviewtorate}}</p></blockquote>
+		<p>
+			Is it acceptable? 
+			<button class="btn btn-small btn-success" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
+			<button class="btn btn-small btn-danger" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
+		</p>
+	</div>
 	{{/if}}
 </template>
