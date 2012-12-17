@@ -26,12 +26,21 @@
 	{{#if isbeingwelcomed}}
 		{{#unless currentUser}}
 			{{#if hasoutstandingcredit}}
-				<div class="alert">
+				<div class="alert" id="alert-credit">
 				  <button type="button" class="close" data-dismiss="alert">&times;</button>
 				  <strong>Heads up!</strong> You have {{unsignedcredits}} credits, which you can redeem by signing in. 
 				</div>
 			{{/if}}
 		{{/unless}}
+		<div class="alert alert-info" id="alert-review">
+		  <button type="button" class="close" data-dismiss="alert">&times;</button>
+		  <strong>Wow!</strong> You've reviewed all available figures. Come back later for more.
+		</div>
+		<div class="alert alert-info" id="alert-rating">
+		  <button type="button" class="close" data-dismiss="alert">&times;</button>
+		  <strong>Wow!</strong> You've rated all available reviews. Come back later for more.
+		</div>
+	
 	<div id="welcome" class="container-narrow">
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>

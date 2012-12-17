@@ -54,7 +54,14 @@ body {
 }
 
 .alert {
-  width: 35%;
+  width: 75%;
+}
+
+#alert-rating, #alert-review {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 /* CSS for uploading a figure screen */

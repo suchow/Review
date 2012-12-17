@@ -98,9 +98,15 @@ if (Meteor.isClient) {
           creator: {$ne: Session.get('tmpId')}, 
         reviewers: {$ne: Session.get('tmpId')}}, 
            {sort : {acceptable_reviews:1, submission_time:1}});
-      Session.set('fig_to_review', fig);
-      Session.set('isbeingwelcomed', false);
-      Session.set('isreviewing', true);      
+      if(fig) {
+        Session.set('fig_to_review', fig);
+        Session.set('isbeingwelcomed', false);
+        Session.set('isreviewing', true);
+      } else {
+        // if the alert isn't already up, put it up
+        var el = document.getElementById('alert-review');
+        if(el) { el.style.display = "block"; }
+      }
     },
     
     'click #welcome-get-review' : function () {
@@ -110,12 +116,19 @@ if (Meteor.isClient) {
     },
     
     'click #welcome-rate-review' : function () {
-      Session.set('reviewtorate', Reviews.findOne({
+      var rev = Reviews.findOne({
           creator: {$ne: Session.get('tmpId')},
            raters: {$ne: Session.get('tmpId')}}, 
-           {sort : { num_ratings:1, submission_time:1}}));
-      Session.set('isbeingwelcomed', false);
-      Session.set('israting', true);
+           {sort : { num_ratings:1, submission_time:1}});
+     if(rev) {
+       Session.set('reviewtorate', rev);
+       Session.set('isbeingwelcomed', false);
+       Session.set('israting', true);
+     } else { 
+       // if the alert isn't already up, put it up
+       var el = document.getElementById('alert-rating');
+       if(el) { el.style.display = "block"; }
+     }
     }
   });
   
