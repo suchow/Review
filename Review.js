@@ -247,7 +247,12 @@ if (Meteor.isClient) {
   };
   
   Template.ratereview.reviewtorate = function () {
-    return Session.get('reviewtorate').text;
+    function p(t){
+        t = t.trim();
+        return (t.length>0?t.replace(/[\r\n]+/,'</p><p>'):null);
+    }
+    t = '<p>' + p(p(p(p(Session.get('reviewtorate').text)))) + '</p>';
+    return t;
   };
   
   Template.ratereview.figuretoratereview = function () {
