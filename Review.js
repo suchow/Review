@@ -12,7 +12,7 @@ if (Meteor.isClient) {
   Session.set('isreviewing', false);
   Session.set('issubmitting', false);
   Session.set('israting', false);
-  
+    
   Session.set('unsigned_ratings', new Array());
   Session.set('unsigned_reviews', new Array());
   
@@ -110,7 +110,7 @@ if (Meteor.isClient) {
     },
     
     'click #welcome-get-review' : function () {
-      // check if the user has enough credit
+      Session.set('figure_url', null);
       Session.set('isbeingwelcomed', false);
       Session.set('issubmitting', true);
     },
@@ -205,7 +205,13 @@ if (Meteor.isClient) {
       document.getElementById('get-review-upload-preview').style.display = "block";
     },
     
-    'click #get-review-submit-button' : function () {      
+    'click #get-review-submit-button' : function () {
+      if(Session.equals('figure_url', null)) {
+        el = document.getElementById("alert-no-figure-upload");
+        if(el) { el.style.display = "block"; }
+        return;
+      }
+            
       // create a new figure
       var id = Figures.insert({
           submission_time: Date.now(),
@@ -310,7 +316,7 @@ if (Meteor.isServer) {
       }
     }
   });
-  
+
   Meteor.startup(function () {
     // code to run on server at startup
   });
