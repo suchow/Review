@@ -20,6 +20,10 @@ if (Meteor.isClient) {
   if (Meteor.userId() !== null) {
     Meteor.call('getCredit', Meteor.userId(), 
       function (error, result) { Session.set('credit', result) });
+    Session.set('tmpId', Meteor.userId());
+  } else {
+    Session.set('tmpId', Meteor.uuid()); // make sure everyone has a usable id
+    Session.set('credit', 0);
   }
   
   //
@@ -33,6 +37,7 @@ if (Meteor.isClient) {
     
     // assign review credits
     outstanding_reviews = Session.get('unsigned_reviews');
+    console.log(outstanding_reviews);
     for (x in outstanding_reviews) {
       Reviews.update(outstanding_reviews[x], {creator: Meteor.userId()});
     }
@@ -41,7 +46,7 @@ if (Meteor.isClient) {
     // assign rating credits
     outstanding_ratings = Session.get('unsigned_ratings');
     for (x in outstanding_ratings) {
-      Reviews.update(outstanding_ratings[x], {creator: Meteor.userId()});
+      Ratings.update(outstanding_ratings[x], {creator: Meteor.userId()});
     }
     Session.set('unsigned_ratings', new Array());
     
@@ -85,7 +90,7 @@ if (Meteor.isClient) {
 
   Template.welcome.events({
     'click #welcome-write-review' : function () {
-      var fig = Figures.findOne({creator: {$ne: Meteor.userId()}}, {sort : {acceptable_reviews:1, submission_time:1}});
+      var fig = Figures.findOne({creator: {$ne: Session.get('tmpId')}}, {sort : {acceptable_reviews:1, submission_time:1}});
       Session.set('fig_to_review', fig);
       Session.set('isbeingwelcomed', false);
       Session.set('isreviewing', true);      
@@ -98,7 +103,7 @@ if (Meteor.isClient) {
     },
     
     'click #welcome-rate-review' : function () {
-      Session.set('reviewtorate', Reviews.findOne({creator: {$ne: Meteor.userId()}}, {sort : { num_ratings:1, submission_time:1}}));
+      Session.set('reviewtorate', Reviews.findOne({creator: {$ne: Session.get('tmpId')}}, {sort : { num_ratings:1, submission_time:1}}));
       Session.set('isbeingwelcomed', false);
       Session.set('israting', true);
     }
@@ -118,7 +123,7 @@ if (Meteor.isClient) {
       // create a new review record
      var id = Reviews.insert({
       submission_time: Date.now(),
-              creator: Meteor.userId(),
+              creator: Session.get('tmpId'),
             figure_id: Session.get('fig_to_review')._id,
                  text: document.getElementById("write-review-description").value,
               ratings: new Array(),
@@ -179,7 +184,7 @@ if (Meteor.isClient) {
       // create a new figure
       var id = Figures.insert({
           submission_time: Date.now(),
-                  creator: Meteor.userId(),
+                  creator: Session.get('tmpId'),
                figure_url: Session.get('figure_url'),
                    fields: document.getElementById("get-review-field").value,
               description: document.getElementById("get-review-description").value,
@@ -187,7 +192,9 @@ if (Meteor.isClient) {
        acceptable_reviews: 0
       });
       
-      Session.set('credit', Session.get('credit') - points_to_submit);
+      if(Meteor.userId() !== null) {
+        Session.set('credit', Session.get('credit') - points_to_submit);
+      };
       
       Session.set('issubmitting', false);
       Session.set('isbeingwelcomed', true);
@@ -232,7 +239,7 @@ if (Meteor.isClient) {
     // create a new rating
     var rating_id = Ratings.insert({
       submission_time: Date.now(),
-              creator: Meteor.userId(),
+              creator: Session.get('tmpId'),
             review_id: review._id,
                rating: rating
     });
