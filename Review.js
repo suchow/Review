@@ -8,16 +8,44 @@ if (Meteor.isClient) {
   Session.set('isreviewing', false);
   Session.set('issubmitting', false);
   Session.set('israting', false);
+  Session.set('ratings', new Array());
+  Session.set('reviews', new Array());
+  
+  // give the signed-in user all outstanding credit
+  Meteor.autorun(function(handle) {
+    if (Meteor.userId() === null) 
+      return;
+    handle.stop();
+    
+    // assign review credits
+    outstanding_reviews = Session.get('reviews');
+    for (x in outstanding_reviews) {
+      Reviews.update(outstanding_reviews[x], {creator: Meteor.userId()});
+    }
+    Session.set('reviews', new Array());
+    
+    // assign rating credits
+    outstanding_ratings = Session.get('ratings');
+    for (x in outstanding_ratings) {
+      Reviews.update(outstanding_ratings[x], {creator: Meteor.userId()});
+    }
+    Session.set('ratings', new Array());
+  });
   
   // 
   // Templates for the welcome view
   //
+  Template.welcome.hascredit = function () {
+    var credits = Session.get('ratings').length + Session.get('reviews').length;
+    return (credits > 0);
+  };
   
-  Template.welcome.newuser = function () {
-    if(Meteor.user() === null)
-      return true;
-    else
-      return false;
+  Template.welcome.reviewscredit = function () {
+    return Session.get('reviews').length;
+  };
+  
+  Template.welcome.ratingscredit = function () {
+    return Session.get('ratings').length;
   };
   
   Template.welcome.isbeingwelcomed = function () {
@@ -58,7 +86,7 @@ if (Meteor.isClient) {
       // create a new review record
      var id = Reviews.insert({
       submission_time: Date.now(),
-              creator: -1,
+              creator: Meteor.userId(),
             figure_id: Session.get('fig_to_review')._id,
                  text: document.getElementById("write-review-description").value,
               ratings: new Array(),
@@ -70,6 +98,12 @@ if (Meteor.isClient) {
         $push : { reviews: id }
       });
       
+      // update session record
+      var tmp_reviews = Session.get('reviews');
+      tmp_reviews.push(id);
+      Session.set('reviews',tmp_reviews);
+      
+      // return to welcome screen
       Session.set('isreviewing', false);
       Session.set('isbeingwelcomed', true);
     }
@@ -109,7 +143,7 @@ if (Meteor.isClient) {
       // create a new figure
       var id = Figures.insert({
       submission_time: Date.now(),
-              creator: -1,
+              creator: Meteor.userId(),
            figure_url: Session.get('figure_url'),
                fields: document.getElementById("get-review-field").value,
           description: document.getElementById("get-review-description").value,
@@ -143,25 +177,41 @@ if (Meteor.isClient) {
   };
   
   Template.ratereview.events({
-    'click #rate-review-yes' : function () {
+    'click #rate-review-yes' : function (evt) {      
       var review = Session.get('reviewtorate');
       Reviews.update(review._id, {
         $push : { ratings: 1 },
         $inc  : { num_ratings: 1 }
       });
-      // only do this the first time
+      
+      // do this only the first time
       Figures.update(review.figure_id, {
         $inc : { good_reviews: 1 }
       });
+      
+      // update session record
+      var tmp_toadd = new Array(review._id,1);
+      var tmp_ratings = Session.get('ratings');
+      tmp_ratings.push(tmp_toadd);
+      Session.set('ratings',tmp_ratings);
+      
+      // return to welcome screen
       Session.set('israting', false);
       Session.set('isbeingwelcomed', true);
     },
     
     'click #rate-review-no' : function () {
-      Reviews.update(Session.get('reviewtorate'), {
+      var review = Session.get('reviewtorate');
+      Reviews.update(review._id, {
         $push : { ratings: 0 },
         $inc  : { num_ratings: 1 }
       });
+      
+      // update session record
+      var tmp_ratings = Session.get('ratings');
+      tmp_ratings.push(review._id);
+      Session.set('ratings',tmp_ratings);
+      
       Session.set('israting', false);
       Session.set('isbeingwelcomed', true);
     }

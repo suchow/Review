@@ -17,12 +17,14 @@
 
 <template name="welcome">
 	{{#if isbeingwelcomed}}
-		<!-- {{#if lackscredit}}	
-			<div class="alert" style="width: 50%;">
-			  <button type="button" class="close" data-dismiss="alert">&times;</button>
-			  <strong>Heads up!</strong> You submitted a figure, but haven't yet reviewed, rated, or logged in. 
-			</div>
-		{{/if}} -->
+		{{#unless currentUser}}
+			{{#if hascredit}}
+				<div class="alert" style="width: 50%;">
+				  <button type="button" class="close" data-dismiss="alert">&times;</button>
+				  <strong>Heads up!</strong> To get credit for your {{reviewscredit}} reviews and {{ratingscredit}} ratings, you'll need to sign in. 
+				</div>
+			{{/if}}
+		{{/unless}}
 	<div id="welcome" class="container-narrow">
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>
