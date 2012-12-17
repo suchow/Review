@@ -16,14 +16,14 @@ if (Meteor.isClient) {
   Session.set('unsigned_ratings', new Array());
   Session.set('unsigned_reviews', new Array());
   
-  // assign credit
-  if (Meteor.userId() !== null) {
+  // assign credit to current user
+  if (Meteor.userId() === null) {
+    Session.set('tmpId', Meteor.uuid()); // generate a new temporary id
+    Session.set('credit', 0);
+  } else {
     Meteor.call('getCredit', Meteor.userId(), 
       function (error, result) { Session.set('credit', result) });
     Session.set('tmpId', Meteor.userId());
-  } else {
-    Session.set('tmpId', Meteor.uuid()); // make sure everyone has a usable id
-    Session.set('credit', 0);
   }
   
   //
@@ -35,6 +35,9 @@ if (Meteor.isClient) {
     }
     handle.stop();
     
+    Session.set('tmpId', Meteor.userId());
+    console.log('signed in!');
+    
     // assign review credits
     outstanding_reviews = Session.get('unsigned_reviews');
     console.log(outstanding_reviews);
@@ -45,6 +48,7 @@ if (Meteor.isClient) {
     
     // assign rating credits
     outstanding_ratings = Session.get('unsigned_ratings');
+    console.log(outstanding_ratings);
     for (x in outstanding_ratings) {
       Ratings.update(outstanding_ratings[x], {creator: Meteor.userId()});
     }
@@ -269,12 +273,11 @@ if (Meteor.isClient) {
     // update session record if user is null
     if(Meteor.userId() === null) {
       var tmp_ratings = Session.get('unsigned_ratings');
-      tmp_ratings.push(review._id);
+      tmp_ratings.push(rating_id);
       Session.set('unsigned_ratings',tmp_ratings);
     } else {
       Session.set('credit', Session.get('credit') + points_per_rating);
     }
-    
     // return to welcome screen
     Session.set('israting', false);
     Session.set('isbeingwelcomed', true);
