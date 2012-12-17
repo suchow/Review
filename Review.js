@@ -1,74 +1,106 @@
 Figures = new Meteor.Collection("figures");
 Reviews = new Meteor.Collection("reviews");
+Ratings = new Meteor.Collection("ratings");
+
+points_per_review = 10;
+points_per_rating = 2; 
+points_to_submit = 20;
 
 if (Meteor.isClient) {
 
-  // start off in welcoming mode
-  Session.set('isbeingwelcomed', true);
+  Session.set('isbeingwelcomed', true); // start off in welcoming mode
   Session.set('isreviewing', false);
   Session.set('issubmitting', false);
   Session.set('israting', false);
-  Session.set('ratings', new Array());
-  Session.set('reviews', new Array());
   
-  // give the signed-in user all outstanding credit
+  Session.set('unsigned_ratings', new Array());
+  Session.set('unsigned_reviews', new Array());
+  
+  // assign credit
+  if (Meteor.userId() !== null) {
+    Meteor.call('getCredit', Meteor.userId(), 
+      function (error, result) { Session.set('credit', result) });
+  }
+  
+  //
+  // Actions to take when a user signs in
+  //
   Meteor.autorun(function(handle) {
-    if (Meteor.userId() === null) 
+    if (Meteor.userId() === null) { 
       return;
+    }
     handle.stop();
     
     // assign review credits
-    outstanding_reviews = Session.get('reviews');
+    outstanding_reviews = Session.get('unsigned_reviews');
     for (x in outstanding_reviews) {
       Reviews.update(outstanding_reviews[x], {creator: Meteor.userId()});
     }
-    Session.set('reviews', new Array());
+    Session.set('unsigned_reviews', new Array());
     
     // assign rating credits
-    outstanding_ratings = Session.get('ratings');
+    outstanding_ratings = Session.get('unsigned_ratings');
     for (x in outstanding_ratings) {
       Reviews.update(outstanding_ratings[x], {creator: Meteor.userId()});
     }
-    Session.set('ratings', new Array());
+    Session.set('unsigned_ratings', new Array());
+    
+    // assign credit
+    if (Meteor.userId() !== null) {
+      Meteor.call('getCredit', Meteor.userId(), 
+        function (error, result) { Session.set('credit', result) });
+    }
   });
   
+  //
+  // Templates for login bar
+  //
+  Template.login.credit = function () {
+    return Session.get('credit');
+  };
+    
   // 
   // Templates for the welcome view
   //
-  Template.welcome.hascredit = function () {
-    var credits = Session.get('ratings').length + Session.get('reviews').length;
-    return (credits > 0);
-  };
-  
-  Template.welcome.reviewscredit = function () {
-    return Session.get('reviews').length;
-  };
-  
-  Template.welcome.ratingscredit = function () {
-    return Session.get('ratings').length;
-  };
-  
   Template.welcome.isbeingwelcomed = function () {
     return Session.get('isbeingwelcomed');
+  };
+  
+  function unsigned_credits() {
+    return points_per_rating*Session.get('unsigned_ratings').length + 
+           points_per_review*Session.get('unsigned_reviews').length;
+  };
+  
+  Template.welcome.hasoutstandingcredit = function () {
+    return (unsigned_credits() > 0);
+  };
+  
+  Template.welcome.unsignedcredits = function () {
+    return unsigned_credits();
+  };
+  
+  Template.welcome.hasenoughcreditforreview = function () {
+    return Session.get('credit') >= points_to_submit;
   };
 
   Template.welcome.events({
     'click #welcome-write-review' : function () {
-      var fig = Figures.findOne({}, {sort : {good_reviews:1, submission_time:1}});
+      var fig = Figures.findOne({creator: {$ne: Meteor.userId()}}, {sort : {acceptable_reviews:1, submission_time:1}});
       Session.set('fig_to_review', fig);
       Session.set('isbeingwelcomed', false);
       Session.set('isreviewing', true);      
     },
     
     'click #welcome-get-review' : function () {
+      // check if the user has enough credit
       Session.set('isbeingwelcomed', false);
       Session.set('issubmitting', true);
     },
     
     'click #welcome-rate-review' : function () {
+      Session.set('reviewtorate', Reviews.findOne({creator: {$ne: Meteor.userId()}}, {sort : { num_ratings:1, submission_time:1}}));
       Session.set('isbeingwelcomed', false);
       Session.set('israting', true);
-      Session.set('reviewtorate', Reviews.findOne({}, {sort : { num_ratings:1, submission_time:1}}));
     }
   });
   
@@ -99,9 +131,13 @@ if (Meteor.isClient) {
       });
       
       // update session record
-      var tmp_reviews = Session.get('reviews');
-      tmp_reviews.push(id);
-      Session.set('reviews',tmp_reviews);
+      if(Meteor.userId() === null) {
+        var tmp_reviews = Session.get('unsigned_reviews');
+        tmp_reviews.push(id);
+        Session.set('unsigned_reviews',tmp_reviews);
+      } else {
+        Session.set('credit', Session.get('credit') + points_per_review);
+      }
       
       // return to welcome screen
       Session.set('isreviewing', false);
@@ -122,7 +158,7 @@ if (Meteor.isClient) {
   };
 
   // 
-  // Templates for the submitting view
+  // Templates for the submitting screen
   //
   
   Template.getreview.issubmitting = function () {
@@ -142,14 +178,17 @@ if (Meteor.isClient) {
     'click #get-review-submit-button' : function () {      
       // create a new figure
       var id = Figures.insert({
-      submission_time: Date.now(),
-              creator: Meteor.userId(),
-           figure_url: Session.get('figure_url'),
-               fields: document.getElementById("get-review-field").value,
-          description: document.getElementById("get-review-description").value,
-              reviews: new Array(), // list of review _id's
-         good_reviews: 0
+          submission_time: Date.now(),
+                  creator: Meteor.userId(),
+               figure_url: Session.get('figure_url'),
+                   fields: document.getElementById("get-review-field").value,
+              description: document.getElementById("get-review-description").value,
+                  reviews: new Array(), // list of review _id's
+       acceptable_reviews: 0
       });
+      
+      Session.set('credit', Session.get('credit') - points_to_submit);
+      
       Session.set('issubmitting', false);
       Session.set('isbeingwelcomed', true);
       scroll(0,0);
@@ -177,48 +216,68 @@ if (Meteor.isClient) {
   };
   
   Template.ratereview.events({
-    'click #rate-review-yes' : function (evt) {      
-      var review = Session.get('reviewtorate');
-      Reviews.update(review._id, {
-        $push : { ratings: 1 },
-        $inc  : { num_ratings: 1 }
-      });
-      
-      // do this only the first time
-      Figures.update(review.figure_id, {
-        $inc : { good_reviews: 1 }
-      });
-      
-      // update session record
-      var tmp_toadd = new Array(review._id,1);
-      var tmp_ratings = Session.get('ratings');
-      tmp_ratings.push(tmp_toadd);
-      Session.set('ratings',tmp_ratings);
-      
-      // return to welcome screen
-      Session.set('israting', false);
-      Session.set('isbeingwelcomed', true);
+    'click #rate-review-yes' : function (evt) { 
+      updateAfterRating(1);  
     },
     
     'click #rate-review-no' : function () {
-      var review = Session.get('reviewtorate');
-      Reviews.update(review._id, {
-        $push : { ratings: 0 },
-        $inc  : { num_ratings: 1 }
-      });
-      
-      // update session record
-      var tmp_ratings = Session.get('ratings');
-      tmp_ratings.push(review._id);
-      Session.set('ratings',tmp_ratings);
-      
-      Session.set('israting', false);
-      Session.set('isbeingwelcomed', true);
+      updateAfterRating(0);    
     }
   });
+  
+  function updateAfterRating(rating) {
+    
+    var review = Session.get('reviewtorate');
+    
+    // create a new rating
+    var rating_id = Ratings.insert({
+      submission_time: Date.now(),
+              creator: Meteor.userId(),
+            review_id: review._id,
+               rating: rating
+    });
+    
+    Reviews.update(review._id, {
+      $push : { ratings: rating_id },
+      $inc  : { num_ratings: 1 }
+    });
+    
+    // do this only the first time
+    if(rating === 1) {
+      Figures.update(review.figure_id, {
+        $inc : { acceptable_reviews: 1 }
+      });
+    }
+    
+    // update session record if user is null
+    if(Meteor.userId() === null) {
+      var tmp_ratings = Session.get('unsigned_ratings');
+      tmp_ratings.push(review._id);
+      Session.set('unsigned_ratings',tmp_ratings);
+    } else {
+      Session.set('credit', Session.get('credit') + points_per_rating);
+    }
+    
+    // return to welcome screen
+    Session.set('israting', false);
+    Session.set('isbeingwelcomed', true);
+  }
 }
 
 if (Meteor.isServer) {
+  
+  Meteor.methods({
+    getCredit: function (user_id) {
+      if(user_id === null) {
+        return 0;
+      } else {
+        return 10*Reviews.find({creator: user_id}).count() + 
+                2*Ratings.find({creator: user_id}).count() -
+               20*Figures.find({creator: user_id}).count();  
+      }
+    }
+  });
+  
   Meteor.startup(function () {
     // code to run on server at startup
   });

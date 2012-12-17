@@ -4,36 +4,45 @@
 </head>
 
 <body>
-	<div id="container">				
-		<div id="login">
-			{{loginButtons align="right"}}
-		</div>
-		 {{> welcome}}
+	<div id="container">
+		{{> login}}				
+		{{> welcome}}
 		{{> getreview}}
 		{{> writereview}}
 		{{> ratereview}}
 	</div>
 </body>
 
+<template name="login">
+	<div id="login">
+		{{loginButtons align="right"}}
+		{{#if currentUser}}
+			<span id="login-badge" class="badge">{{credit}} credits</span>
+		{{/if}}
+	</div>
+</template>
+
 <template name="welcome">
 	{{#if isbeingwelcomed}}
 		{{#unless currentUser}}
-			{{#if hascredit}}
-				<div class="alert" style="width: 50%;">
+			{{#if hasoutstandingcredit}}
+				<div class="alert">
 				  <button type="button" class="close" data-dismiss="alert">&times;</button>
-				  <strong>Heads up!</strong> To get credit for your {{reviewscredit}} reviews and {{ratingscredit}} ratings, you'll need to sign in. 
+				  <strong>Heads up!</strong> You have {{unsignedcredits}} credits, which you can redeem by signing in. 
 				</div>
 			{{/if}}
 		{{/unless}}
 	<div id="welcome" class="container-narrow">
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>
-	    <p class="lead">Looking to get your figure reviewed, or to review someone else's?</p>
-			<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i> Get a review</button>
-			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i> Write a review</button>
-			<button type="submit" id="welcome-rate-review" class="btn btn-warning"><i class="icon-ok icon-white"></i> Rate a review</button>
+	    <p class="lead">Earn credits by writing and rating reviews of scientific plots and figures. Use the credits to get your figures reviewed.</p>
+			{{#if hasenoughcreditforreview}}
+				<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i>&nbsp; Get a review &ndash;20</button>
+			{{/if}}
+			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i>&nbsp; Write a review +10</button>
+			<button type="submit" id="welcome-rate-review" class="btn btn-warning"><i class="icon-ok icon-white"></i>&nbsp; Rate a review +2</button>
 		</div>
-	</div>
+	</div>	
 	{{/if}}
 </template>
 
@@ -79,8 +88,8 @@
 		<blockquote><p>{{reviewtorate}}</p></blockquote>
 		<p>
 			Is it acceptable? 
-			<button class="btn btn-small btn-success" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
-			<button class="btn btn-small btn-danger" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
+			<button class="btn btn-small btn-success rate-review" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
+			<button class="btn btn-small btn-danger rate-review" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
 		</p>
 	</div>
 	{{/if}}
