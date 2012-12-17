@@ -90,7 +90,10 @@ if (Meteor.isClient) {
 
   Template.welcome.events({
     'click #welcome-write-review' : function () {
-      var fig = Figures.findOne({creator: {$ne: Session.get('tmpId')}}, {sort : {acceptable_reviews:1, submission_time:1}});
+      var fig = Figures.findOne({
+          creator: {$ne: Session.get('tmpId')}, 
+        reviewers: {$ne: Session.get('tmpId')}}, 
+           {sort : {acceptable_reviews:1, submission_time:1}});
       Session.set('fig_to_review', fig);
       Session.set('isbeingwelcomed', false);
       Session.set('isreviewing', true);      
@@ -103,7 +106,10 @@ if (Meteor.isClient) {
     },
     
     'click #welcome-rate-review' : function () {
-      Session.set('reviewtorate', Reviews.findOne({creator: {$ne: Session.get('tmpId')}}, {sort : { num_ratings:1, submission_time:1}}));
+      Session.set('reviewtorate', Reviews.findOne({
+          creator: {$ne: Session.get('tmpId')},
+           raters: {$ne: Session.get('tmpId')}}, 
+           {sort : { num_ratings:1, submission_time:1}}));
       Session.set('isbeingwelcomed', false);
       Session.set('israting', true);
     }
@@ -127,12 +133,14 @@ if (Meteor.isClient) {
             figure_id: Session.get('fig_to_review')._id,
                  text: document.getElementById("write-review-description").value,
               ratings: new Array(),
-          num_ratings: 0
+          num_ratings: 0,
+               raters: new Array()
       });
       
       // update figure record
       Figures.update(Session.get('fig_to_review')._id, {
-        $push : { reviews: id }
+        $push : { reviews: id },
+        $push : { reviewers: Session.get('tmpId') }
       });
       
       // update session record
@@ -189,7 +197,8 @@ if (Meteor.isClient) {
                    fields: document.getElementById("get-review-field").value,
               description: document.getElementById("get-review-description").value,
                   reviews: new Array(), // list of review _id's
-       acceptable_reviews: 0
+       acceptable_reviews: 0,
+                reviewers: new Array() // list of reviewer id's
       });
       
       if(Meteor.userId() !== null) {
@@ -246,7 +255,8 @@ if (Meteor.isClient) {
     
     Reviews.update(review._id, {
       $push : { ratings: rating_id },
-      $inc  : { num_ratings: 1 }
+      $inc  : { num_ratings: 1 },
+      $push : { raters: Session.get('tmpId') }
     });
     
     // do this only the first time
