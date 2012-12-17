@@ -18,8 +18,17 @@ if (Meteor.isClient) {
   
   // assign credit to current user
   if (Meteor.userId() === null) {
-    Session.set('tmpId', Meteor.uuid()); // generate a new temporary id
-    Session.set('credit', 0);
+    
+    // check if they have a tmpId in local storage
+    if(localStorage.tmpId) {
+      Session.set('tmpId', localStorage.tmpId); // generate a new temporary id 
+      Session.set('credit', localStorage.credit);
+    } else {
+      var tmpId = Meteor.uuid();
+      localStorage.setItem('tmpId', tmpId);
+      Session.set('tmpId', tmpId); // generate a new temporary id
+      Session.set('credit', 0);
+    }
   } else {
     Meteor.call('getCredit', Meteor.userId(), 
       function (error, result) { Session.set('credit', result) });
@@ -167,6 +176,7 @@ if (Meteor.isClient) {
         Session.set('unsigned_reviews',tmp_reviews);
       } else {
         Session.set('credit', Session.get('credit') + points_per_review);
+        localStorage.setItem('credit', localStorage.credit + points_per_review);
       }
       
       // return to welcome screen
@@ -226,6 +236,7 @@ if (Meteor.isClient) {
       
       if(Meteor.userId() !== null) {
         Session.set('credit', Session.get('credit') - points_to_submit);
+        localStorage.setItem('credit', localStorage.credit - points_to_submit);
       };
       
       Session.set('issubmitting', false);
@@ -301,6 +312,7 @@ if (Meteor.isClient) {
       Session.set('unsigned_ratings',tmp_ratings);
     } else {
       Session.set('credit', Session.get('credit') + points_per_rating);
+      localStorage.setItem('credit', localStorage.credit + points_per_rating);
     }
     // return to welcome screen
     Session.set('israting', false);
