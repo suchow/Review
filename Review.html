@@ -5,11 +5,8 @@
 
 <body>
 	<div id="container">
-		{{> login}}				
-		{{> welcome}}
-		{{> getreview}}
-		{{> writereview}}
-		{{> ratereview}}
+		{{> login}}			
+	  {{renderPage}}
 	</div>
 </body>
 
@@ -23,7 +20,6 @@
 </template>
 
 <template name="welcome">
-	{{#if isbeingwelcomed}}
 		{{#unless currentUser}}
 			{{#if hasoutstandingcredit}}
 				<div class="alert" id="alert-credit">
@@ -45,18 +41,16 @@
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>
 	    <p class="lead">Earn credits by writing and rating reviews of scientific plots and figures. Use the credits to get your figures reviewed.</p>
-			{{#if hasenoughcreditforreview}}
+			{{! #if hasenoughcreditforreview}}
 				<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i>&nbsp; Get a review &ndash;20</button>
-			{{/if}}
+			{{! /if}}
 			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i>&nbsp; Write a review +10</button>
 			<button type="submit" id="welcome-rate-review" class="btn btn-warning"><i class="icon-ok icon-white"></i>&nbsp; Rate a review +2</button>
 		</div>
 	</div>	
-	{{/if}}
 </template>
 
 <template name="getreview">
-	{{#if issubmitting}}
 	<div id="get-review">
 		<img src="" id="get-review-upload-preview" alt="uploaded figure" />
 		<form>
@@ -74,11 +68,9 @@
 	  <button type="button" class="close" data-dismiss="alert">&times;</button>
 	  <strong>Hold on!</strong> You didn't upload a figure.
 	</div>
-	{{/if}}
 </template>
 
 <template name="writereview">
-	{{#if isreviewing}}
 	<div id="write-review">
 		<p>Please review the following figure:</p>
 		<p><img src="{{figuretoreview}}" id="write-review-fig-preview" alt="uploaded figure" /></p>
@@ -91,11 +83,9 @@
 			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn btn-info" /></p>
 		</form>
 	</div>
-	{{/if}}
 </template>
 
 <template name="ratereview">
-	{{#if israting}}
 	<div id="rate-review">
 		<p>Please rate the following review:</p>
 		<blockquote>{{{reviewtorate}}}</blockquote>
@@ -105,5 +95,4 @@
 			<button class="btn btn-small btn-danger rate-review" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
 		</p>
 	</div>
-	{{/if}}
 </template>

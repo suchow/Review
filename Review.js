@@ -7,12 +7,14 @@ points_per_rating = 2;
 points_to_submit = 20;
 
 if (Meteor.isClient) {
-
-  Session.set('isbeingwelcomed', true); // start off in welcoming mode
-  Session.set('isreviewing', false);
-  Session.set('issubmitting', false);
-  Session.set('israting', false);
-    
+  
+  Meteor.Router.add({
+    '/'       : 'welcome',
+    '/review' : 'writereview',
+    '/submit' : 'getreview',
+    '/rate'   : 'ratereview'
+  });
+  
   Session.set('unsigned_ratings', new Array());
   Session.set('unsigned_reviews', new Array());
   
@@ -80,10 +82,6 @@ if (Meteor.isClient) {
   // 
   // Templates for the welcome view
   //
-  Template.welcome.isbeingwelcomed = function () {
-    return Session.get('isbeingwelcomed');
-  };
-  
   function unsigned_credits() {
     return points_per_rating*Session.get('unsigned_ratings').length + 
            points_per_review*Session.get('unsigned_reviews').length;
@@ -109,8 +107,7 @@ if (Meteor.isClient) {
            {sort : {acceptable_reviews:1, submission_time:1}});
       if(fig) {
         Session.set('fig_to_review', fig);
-        Session.set('isbeingwelcomed', false);
-        Session.set('isreviewing', true);
+        Meteor.Router.to('/review');
       } else {
         // if the alert isn't already up, put it up
         var el = document.getElementById('alert-review');
@@ -120,8 +117,7 @@ if (Meteor.isClient) {
     
     'click #welcome-get-review' : function () {
       Session.set('figure_url', null);
-      Session.set('isbeingwelcomed', false);
-      Session.set('issubmitting', true);
+      Meteor.Router.to('/submit');
     },
     
     'click #welcome-rate-review' : function () {
@@ -131,8 +127,7 @@ if (Meteor.isClient) {
            {sort : { num_ratings:1, submission_time:1}});
      if(rev) {
        Session.set('reviewtorate', rev);
-       Session.set('isbeingwelcomed', false);
-       Session.set('israting', true);
+       Meteor.Router.to('/rate');
      } else { 
        // if the alert isn't already up, put it up
        var el = document.getElementById('alert-rating');
@@ -144,11 +139,6 @@ if (Meteor.isClient) {
   // 
   // Templates for the reviewing screen
   //
-  
-  Template.writereview.isreviewing = function () {
-    return Session.get('isreviewing');
-  };
-    
   Template.writereview.events({
     'click #write-review-submit-button' : function () {
       
@@ -180,8 +170,7 @@ if (Meteor.isClient) {
       }
       
       // return to welcome screen
-      Session.set('isreviewing', false);
-      Session.set('isbeingwelcomed', true);
+      Meteor.Router.to('/');
     }
   });
   
@@ -200,11 +189,6 @@ if (Meteor.isClient) {
   // 
   // Templates for the submitting screen
   //
-  
-  Template.getreview.issubmitting = function () {
-    return Session.get('issubmitting');
-  };
-  
   Template.getreview.events({
     'change #get-review-upload-fp': function(evt) {
       Session.set('figure_url', evt.files[0].url);
@@ -239,8 +223,7 @@ if (Meteor.isClient) {
         localStorage.setItem('credit', localStorage.credit - points_to_submit);
       };
       
-      Session.set('issubmitting', false);
-      Session.set('isbeingwelcomed', true);
+      Meteor.Router.to('/');
       scroll(0,0);
     }
   });
@@ -253,10 +236,6 @@ if (Meteor.isClient) {
   // 
   // Templates for the rating view
   //
-  Template.ratereview.israting = function () {
-    return Session.get('israting');
-  };
-  
   Template.ratereview.reviewtorate = function () {
     function p(t){
         t = t.trim();
@@ -315,8 +294,7 @@ if (Meteor.isClient) {
       localStorage.setItem('credit', localStorage.credit + points_per_rating);
     }
     // return to welcome screen
-    Session.set('israting', false);
-    Session.set('isbeingwelcomed', true);
+    Meteor.Router.to('/');
   }
 }
 
