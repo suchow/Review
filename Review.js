@@ -8,6 +8,13 @@ points_to_submit = 20;
 
 if (Meteor.isClient) {
   
+  // Accounts.ui.config({
+  //   requestPermissions: {
+  //     facebook: ['email'],
+  //   },
+  //   passwordSignupFields: 'USERNAME_AND_EMAIL'
+  // });
+  
   Meteor.Router.add({
     '/'       : 'welcome',
     '/review' : 'writereview',
@@ -299,6 +306,24 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+  
+  // Accounts.onCreateUser(function(options, user) {
+  //     if (options.profile) { // maintain the default behavior
+  //         user.profile = options.profile;
+  //     }
+  // 
+  //     // get profile data from Facebook
+  //     var result = Meteor.http.get("https://graph.facebook.com/me", {
+  //       params: {access_token: user.services.facebook.accessToken}});
+  // 
+  //     if ( !result.error && result.data ) {
+  //         // if successfully obtained facebook profile, save it off
+  //         user.profile.facebook = result.data;
+  //         user.email = result.data.email;
+  //     }
+  // 
+  //     return user;
+  // });
   
   Meteor.methods({
     getCredit: function (user_id) {
