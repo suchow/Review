@@ -20,10 +20,25 @@ if (Meteor.isClient) {
     '/review' : 'writereview',
     '/submit' : 'getreview',
     '/rate'   : 'ratereview'
+    '/figures/:id': function(id) {
+      Session.set('figure_to_page', id);
+      return 'figurePage';
+    },
   });
   
   Session.set('unsigned_ratings', new Array());
   Session.set('unsigned_reviews', new Array());
+  
+  
+  // get the name of the user from id
+  function getName(id) {
+    var tmp = Meteor.users.findOne(id);
+    if(tmp){
+      return tmp.profile.name;
+    } else {
+      return "Anonymous";
+    }
+  };
   
   // assign credit to current user
   if (Meteor.userId() === null) {
@@ -123,7 +138,6 @@ if (Meteor.isClient) {
     },
     
     'click #welcome-get-review' : function () {
-      Session.set('figure_url', null);
       Meteor.Router.to('/submit');
     },
     
@@ -303,6 +317,32 @@ if (Meteor.isClient) {
     // return to welcome screen
     Meteor.Router.to('/');
   }
+  
+  
+  // 
+  // Templates for the figure view
+  //
+  Template.figurePage.figure = function () {
+    // todo: check permissions
+    var fig = Figures.findOne(Session.get('figure_to_page'));
+    if(fig) {
+      return fig.figure_url;
+    }
+  };
+    
+  Template.figurePage.reviews = function () {
+    return Reviews.find({
+      figure_id: Session.get('figure_to_page')
+    }).map(function (x) {
+      return {
+                   text: x.text,
+                creator: x.creator,
+           creator_name: x.creator_name,
+        submission_time: moment(x.submission_time).fromNow()
+      };
+    });
+  };
+  
 }
 
 if (Meteor.isServer) {

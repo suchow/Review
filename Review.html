@@ -95,4 +95,16 @@
 			<button class="btn btn-small btn-danger rate-review" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
 		</p>
 	</div>
+
+<template name="figurePage">
+	<p><img src="{{figure}}" id="figure-page-preview" alt="Your figure" /></p>
+	<h4>Reviews:</h4>
+	{{#each reviews}}
+		<blockquote>
+			{{this.text}}
+			<small><a href="/users/{{this.creator}}">{{this.creator_name}}</a>, {{this.submission_time}}</small>
+		</blockquote>
+	{{/each}}
+</template>
+
 </template>
