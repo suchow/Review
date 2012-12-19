@@ -17,9 +17,9 @@ if (Meteor.isClient) {
   
   Meteor.Router.add({
     '/'       : 'welcome',
-    '/review' : 'writereview',
-    '/submit' : 'getreview',
-    '/rate'   : 'ratereview'
+    '/review' : 'writeReview',
+    '/submit' : 'getReview',
+    '/rate'   : 'rateReview',
     '/figures/:id': function(id) {
       Session.set('figure_to_page', id);
       return 'figurePage';
@@ -164,13 +164,14 @@ if (Meteor.isClient) {
   // 
   // Templates for the reviewing screen
   //
-  Template.writereview.events({
+  Template.writeReview.events({
     'click #write-review-submit-button' : function () {
       
-      // create a new review record
+     // create a new review record
      var id = Reviews.insert({
       submission_time: Date.now(),
               creator: Session.get('tmpId'),
+         creator_name: getName(Session.get('tmpId')), 
             figure_id: Session.get('fig_to_review')._id,
                  text: document.getElementById("write-review-description").value,
               ratings: new Array(),
@@ -199,22 +200,22 @@ if (Meteor.isClient) {
     }
   });
   
-  Template.writereview.figuretoreview = function () {
+  Template.writeReview.figuretoreview = function () {
     return Session.get('fig_to_review').figure_url;
   };
   
-  Template.writereview.figuretoreviewfields = function () {
+  Template.writeReview.figuretoreviewfields = function () {
     return Session.get('fig_to_review').fields;
   };
   
-  Template.writereview.figuretoreviewdescription = function () {
+  Template.writeReview.figuretoreviewdescription = function () {
     return Session.get('fig_to_review').description;
   };
 
   // 
   // Templates for the submitting screen
   //
-  Template.getreview.events({
+  Template.getReview.events({
     'change #get-review-upload-fp': function(evt) {
       Session.set('figure_url', evt.files[0].url);
       // show the newly uploaded figure
@@ -229,31 +230,34 @@ if (Meteor.isClient) {
         el = document.getElementById("alert-no-figure-upload");
         if(el) { el.style.display = "block"; }
         return;
+      } else {
+        console.log(Session.get('figure_url'));
+        console.log('got here');
+
+        // create a new figure
+        var id = Figures.insert({
+            submission_time: Date.now(),
+                    creator: Session.get('tmpId'),
+                 figure_url: Session.get('figure_url'),
+                     fields: document.getElementById("get-review-field").value,
+                description: document.getElementById("get-review-description").value,
+                    reviews: new Array(), // list of review _id's
+         acceptable_reviews: 0,
+                  reviewers: new Array() // list of reviewer id's
+        });
+
+        if(Meteor.userId() !== null) {
+          Session.set('credit', Session.get('credit') - points_to_submit);
+          localStorage.setItem('credit', localStorage.credit - points_to_submit);
+        };
+
+        Meteor.Router.to('/');
+        scroll(0,0);
       }
-            
-      // create a new figure
-      var id = Figures.insert({
-          submission_time: Date.now(),
-                  creator: Session.get('tmpId'),
-               figure_url: Session.get('figure_url'),
-                   fields: document.getElementById("get-review-field").value,
-              description: document.getElementById("get-review-description").value,
-                  reviews: new Array(), // list of review _id's
-       acceptable_reviews: 0,
-                reviewers: new Array() // list of reviewer id's
-      });
-      
-      if(Meteor.userId() !== null) {
-        Session.set('credit', Session.get('credit') - points_to_submit);
-        localStorage.setItem('credit', localStorage.credit - points_to_submit);
-      };
-      
-      Meteor.Router.to('/');
-      scroll(0,0);
     }
   });
   
-  Template.getreview.rendered = function () {
+  Template.getReview.rendered = function () {
     filepicker.setKey("AcN4KNYMSeats1v5zAAhMz");
     filepicker.constructWidget(document.getElementById('get-review-upload-fp'));
   };
@@ -265,7 +269,7 @@ if (Meteor.isClient) {
   // 
   // Templates for the rating view
   //
-  Template.ratereview.reviewtorate = function () {
+  Template.rateReview.reviewtorate = function () {
     function p(t){
         t = t.trim();
         return (t.length>0?t.replace(/[\r\n]+/,'</p><p>'):null);
@@ -274,11 +278,11 @@ if (Meteor.isClient) {
     return t;
   };
   
-  Template.ratereview.figuretoratereview = function () {
+  Template.rateReview.figuretoratereview = function () {
     return Session.get('reviewtorate').figure_url;
   };
   
-  Template.ratereview.events({
+  Template.rateReview.events({
     'click #rate-review-yes' : function (evt) { 
       updateAfterRating(1);  
     },
