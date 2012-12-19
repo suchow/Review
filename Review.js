@@ -24,6 +24,10 @@ if (Meteor.isClient) {
       Session.set('figure_to_page', id);
       return 'figurePage';
     },
+    '/users/:id' : function(id) {
+      Session.set('user_to_page', id);
+      return 'userPage';
+    }
   });
   
   Session.set('unsigned_ratings', new Array());
@@ -254,6 +258,10 @@ if (Meteor.isClient) {
     filepicker.constructWidget(document.getElementById('get-review-upload-fp'));
   };
   
+  Template.getReview.created = function () {
+    Session.set('figure_url', null);
+  };
+  
   // 
   // Templates for the rating view
   //
@@ -343,6 +351,26 @@ if (Meteor.isClient) {
     });
   };
   
+  
+  //
+  // Templates for the user view
+  //
+  Template.userPage.userName = function () {
+    return getName(Session.get('user_to_page'));
+  }
+  
+  Template.userPage.reviews = function () {
+    return Reviews.find({
+      creator: Session.get('user_to_page')
+    }).map(function (x) {
+      return {
+                   text: x.text,
+                creator: x.creator,
+           creator_name: x.creator_name,
+        submission_time: moment(x.submission_time).fromNow()
+      };
+    });
+  };
 }
 
 if (Meteor.isServer) {
