@@ -271,6 +271,18 @@ if (Meteor.isClient) {
   // 
   // Templates for the rating view
   //
+  Template.rateReview.creator = function () {
+    return Session.get('reviewtorate').creator; 
+  }
+  
+  Template.rateReview.creator_name = function () {
+    return getName(Session.get('reviewtorate').creator); 
+  }
+  
+  Template.rateReview.submission_time = function () {
+    return moment(Session.get('reviewtorate').submission_time).fromNow();
+  }
+  
   Template.rateReview.reviewtorate = function () {
     function p(t){
         t = t.trim();

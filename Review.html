@@ -88,7 +88,10 @@
 <template name="rateReview">
 	<div id="rate-review">
 		<p>Please rate the following review:</p>
-		<blockquote>{{{reviewtorate}}}</blockquote>
+		<blockquote>
+			{{{reviewtorate}}}
+			<small><a href="/users/{{creator}}">{{creator_name}}</a>, {{submission_time}}</small>
+		</blockquote>
 		<p>
 			Is it acceptable? 
 			<button class="btn btn-small btn-success rate-review" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
