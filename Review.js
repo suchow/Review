@@ -6,7 +6,7 @@ pointsPerReview = 10;
 pointsPerRating = 2; 
 pointsToSubmit = 20;
 
-if (Meteor.isClient) {      
+if (Meteor.isClient) {  
   
   // accounts
   Accounts.ui.config({
@@ -245,6 +245,20 @@ if (Meteor.isClient) {
                   reviewers: new Array() // list of reviewer id's
         });
 
+        // shorten the url
+        Meteor.http.call("GET", "https://api-ssl.bitly.com/v3/shorten",
+          {params: {login:'plot5', apiKey:'R_0832b91fcc597080840dea29e1e97b2d',
+            longUrl: "http://review.plot5.com/figures/" + id}}, // replace with Meteor.absoluteUrl
+          function (error, result) {
+            if (result.statusCode === 200) {
+              console.log(result.data.data.url);
+              Figures.update(id, { $set : { shortUrl: result.data.data.url }});
+            } else {
+              return null;
+            }
+          }
+        );
+
         if(Meteor.userId() !== null) {
           Session.set('credit', Session.get('credit') - pointsToSubmit);
           localStorage.setItem('credit', localStorage.credit - pointsToSubmit);
@@ -397,6 +411,12 @@ if (Meteor.isClient) {
     }).map(dataExtractor1);
   };
   
+  Template.figurePage.shortUrl = function () {
+    var fig = Figures.findOne(Session.get('figure_to_page'));
+    if(fig) {
+      return fig.shortUrl;
+    }
+  };
   
   //
   // Templates for the user view
