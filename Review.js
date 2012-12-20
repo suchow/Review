@@ -421,13 +421,13 @@ if (Meteor.isServer) {
   };
           
   Meteor.methods({
-    getCredit: function (user_id) {
-      if(user_id === null) {
+    getCredit: function () {
+      if(this.userId === null) {
         return 0;
       } else {
-        return 10*Reviews.find({creator: user_id}).count() + 
-                2*Ratings.find({creator: user_id}).count() -
-               20*Figures.find({creator: user_id}).count();  
+        return 10*Reviews.find({creator: this.userId}).count() + 
+                2*Ratings.find({creator: this.userId}).count() -
+               20*Figures.find({creator: this.userId}).count();  
       }
     },
     notifyFigureCreatorOfReview: function (reviewId) {
