@@ -14,6 +14,13 @@ if (Meteor.isClient) {
   //   },
   //   passwordSignupFields: 'USERNAME_AND_EMAIL'
   // });
+  // accounts
+  Accounts.ui.config({
+    requestPermissions: {
+      facebook: ['email'],
+    },
+    passwordSignupFields: 'USERNAME_AND_EMAIL'
+  });
   
   Meteor.Router.add({
     '/'       : 'welcome',
@@ -316,6 +323,9 @@ if (Meteor.isClient) {
         $inc : { acceptable_reviews: 1 }
       });
     }
+      if(!review.notificationSent) {
+        Meteor.call('notifyFigureCreatorOfReview', review._id);
+      };
     
     // update session record if user is null
     if(Meteor.userId() === null) {
@@ -396,7 +406,20 @@ if (Meteor.isServer) {
   // 
   //     return user;
   // });
+if (Meteor.isServer) {  
   
+  function getEmail(userId) {
+    if(userId) {
+      var userDoc = Meteor.users.findOne(userId);
+      if(userDoc) {
+        if(typeof userDoc.services.facebook !== 'undefined') {
+          return userDoc.services.facebook.email;
+        };
+      };
+    };
+    return "nothing@nada.com";
+  };
+          
   Meteor.methods({
     getCredit: function (user_id) {
       if(user_id === null) {
@@ -406,6 +429,22 @@ if (Meteor.isServer) {
                 2*Ratings.find({creator: user_id}).count() -
                20*Figures.find({creator: user_id}).count();  
       }
+    },
+    notifyFigureCreatorOfReview: function (reviewId) {
+      var figureId = Reviews.findOne(reviewId).figure_id;
+      var userId = Figures.findOne(figureId).creator;
+      var emailAddress = getEmail(userId);
+      Meteor.setTimeout(function () {
+        Email.send({ 
+          from: "suchow@fas.harvard.edu", 
+          to: emailAddress, 
+          subject: "New review for figure" + reviewId, 
+          text: "Here's the review." 
+        });
+      }, 10*1000); // delay until email is sent
+      Reviews.update(reviewId, {
+        $set : { notificationSent: true }
+      });
     }
   });
 
