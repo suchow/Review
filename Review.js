@@ -2,18 +2,12 @@ Figures = new Meteor.Collection("figures");
 Reviews = new Meteor.Collection("reviews");
 Ratings = new Meteor.Collection("ratings");
 
-points_per_review = 10;
-points_per_rating = 2; 
-points_to_submit = 20;
+pointsPerReview = 10;
+pointsPerRating = 2; 
+pointsToSubmit = 20;
 
-if (Meteor.isClient) {
+if (Meteor.isClient) {      
   
-  // Accounts.ui.config({
-  //   requestPermissions: {
-  //     facebook: ['email'],
-  //   },
-  //   passwordSignupFields: 'USERNAME_AND_EMAIL'
-  // });
   // accounts
   Accounts.ui.config({
     requestPermissions: {
@@ -22,6 +16,7 @@ if (Meteor.isClient) {
     passwordSignupFields: 'USERNAME_AND_EMAIL'
   });
   
+  // routing
   Meteor.Router.add({
     '/'       : 'welcome',
     '/review' : 'writeReview',
@@ -39,7 +34,6 @@ if (Meteor.isClient) {
   
   Session.set('unsigned_ratings', new Array());
   Session.set('unsigned_reviews', new Array());
-  
   
   // get the name of the user from id
   function getName(id) {
@@ -65,7 +59,7 @@ if (Meteor.isClient) {
       Session.set('credit', 0);
     }
   } else {
-    Meteor.call('getCredit', Meteor.userId(), 
+    Meteor.call('getCredit', 
       function (error, result) { Session.set('credit', result) });
     Session.set('tmpId', Meteor.userId());
   }
@@ -80,11 +74,9 @@ if (Meteor.isClient) {
     handle.stop();
     
     Session.set('tmpId', Meteor.userId());
-    console.log('signed in!');
     
     // assign review credits
     outstanding_reviews = Session.get('unsigned_reviews');
-    console.log(outstanding_reviews);
     for (x in outstanding_reviews) {
       Reviews.update(outstanding_reviews[x], {creator: Meteor.userId()});
     }
@@ -92,7 +84,6 @@ if (Meteor.isClient) {
     
     // assign rating credits
     outstanding_ratings = Session.get('unsigned_ratings');
-    console.log(outstanding_ratings);
     for (x in outstanding_ratings) {
       Ratings.update(outstanding_ratings[x], {creator: Meteor.userId()});
     }
@@ -100,7 +91,7 @@ if (Meteor.isClient) {
     
     // assign credit
     if (Meteor.userId() !== null) {
-      Meteor.call('getCredit', Meteor.userId(), 
+      Meteor.call('getCredit', 
         function (error, result) { Session.set('credit', result) });
     }
   });
@@ -116,8 +107,8 @@ if (Meteor.isClient) {
   // Templates for the welcome view
   //
   function unsigned_credits() {
-    return points_per_rating*Session.get('unsigned_ratings').length + 
-           points_per_review*Session.get('unsigned_reviews').length;
+    return pointsPerRating*Session.get('unsigned_ratings').length + 
+           pointsPerReview*Session.get('unsigned_reviews').length;
   };
   
   Template.welcome.hasoutstandingcredit = function () {
@@ -129,7 +120,7 @@ if (Meteor.isClient) {
   };
   
   Template.welcome.hasenoughcreditforreview = function () {
-    return Session.get('credit') >= points_to_submit;
+    return Session.get('credit') >= pointsToSubmit;
   };
 
   Template.welcome.events({
@@ -155,7 +146,7 @@ if (Meteor.isClient) {
     'click #welcome-rate-review' : function () {
       var rev = Reviews.findOne({
           creator: {$ne: Session.get('tmpId')},
-           raters: {$ne: Session.get('tmpId')}}, 
+       raters_all: {$ne: Session.get('tmpId')}}, 
            {sort : { num_ratings:1, submission_time:1}});
      if(rev) {
        Session.set('reviewtorate', rev);
@@ -173,19 +164,22 @@ if (Meteor.isClient) {
   //
   Template.writeReview.events({
     'click #write-review-submit-button' : function () {
-      
+            
      // create a new review record
      var id = Reviews.insert({
-      submission_time: Date.now(),
-              creator: Session.get('tmpId'),
-         creator_name: getName(Session.get('tmpId')), 
-            figure_id: Session.get('fig_to_review')._id,
-                 text: document.getElementById("write-review-description").value,
-              ratings: new Array(),
-          num_ratings: 0,
-               raters: new Array()
+          submission_time: Date.now(),
+                  creator: Session.get('tmpId'),
+             creator_name: getName(Session.get('tmpId')), 
+                figure_id: Session.get('fig_to_review')._id,
+                     text: document.getElementById("write-review-description").value,
+               raters_yes: new Array(),
+                raters_no: new Array(),
+               raters_all: new Array(),
+              num_ratings: 0,
+               acceptable: false,
+         notificationSent: false,
       });
-      
+                        
       // update figure record
       Figures.update(Session.get('fig_to_review')._id, {
         $push : { reviews: id },
@@ -198,8 +192,8 @@ if (Meteor.isClient) {
         tmp_reviews.push(id);
         Session.set('unsigned_reviews',tmp_reviews);
       } else {
-        Session.set('credit', Session.get('credit') + points_per_review);
-        localStorage.setItem('credit', localStorage.credit + points_per_review);
+        Session.set('credit', Session.get('credit') + pointsPerReview);
+        localStorage.setItem('credit', localStorage.credit + pointsPerReview);
       }
       
       // return to welcome screen
@@ -238,8 +232,6 @@ if (Meteor.isClient) {
         if(el) { el.style.display = "block"; }
         return;
       } else {
-        console.log(Session.get('figure_url'));
-        console.log('got here');
 
         // create a new figure
         var id = Figures.insert({
@@ -254,8 +246,8 @@ if (Meteor.isClient) {
         });
 
         if(Meteor.userId() !== null) {
-          Session.set('credit', Session.get('credit') - points_to_submit);
-          localStorage.setItem('credit', localStorage.credit - points_to_submit);
+          Session.set('credit', Session.get('credit') - pointsToSubmit);
+          localStorage.setItem('credit', localStorage.credit - pointsToSubmit);
         };
 
         Meteor.Router.to('/');
@@ -299,9 +291,19 @@ if (Meteor.isClient) {
     }
   });
   
+  // is the review acceptable given this number of yes and no's?
+  function isAcceptable(y,n) {
+    return ((y > n) && ((y + n) > 1));
+  };
+  
   function updateAfterRating(rating) {
-    
+  
     var review = Session.get('reviewtorate');
+    
+    // check acceptability before the rating
+    var ys = review.raters_yes.length;
+    var ns = review.raters_no.length;
+    var acc0 = isAcceptable(ys,ns);
     
     // create a new rating
     var rating_id = Ratings.insert({
@@ -310,22 +312,43 @@ if (Meteor.isClient) {
             review_id: review._id,
                rating: rating
     });
-    
+
+    // update this review            
     Reviews.update(review._id, {
-      $push : { ratings: rating_id },
-      $inc  : { num_ratings: 1 },
-      $push : { raters: Session.get('tmpId') }
+      $inc  : {  num_ratings: 1 },
+      $push : {  raters_all: Session.get('tmpId') }
     });
-    
-    // do this only the first time
+      
     if(rating === 1) {
+      Reviews.update(review._id, {
+        $push : { raters_yes: Session.get('tmpId') }
+      });
+    } else {
+      Reviews.update(review._id, {
+        $push : {  raters_no: Session.get('tmpId') }});
+    };
+
+    // recompute acceptability  
+    var acc1 = isAcceptable(ys+rating, ns+!rating);
+
+    // stuff to do when the review becomes acceptable
+    if(!acc0 && acc1) {
       Figures.update(review.figure_id, {
         $inc : { acceptable_reviews: 1 }
       });
-    }
+      Reviews.update(review._id, {
+        $set : { acceptable: true }
+      });
       if(!review.notificationSent) {
         Meteor.call('notifyFigureCreatorOfReview', review._id);
       };
+    };
+    
+    if(acc0 && !acc1) {
+      Reviews.update(review._id, {
+        $set : { acceptable: false }
+      });
+    };
     
     // update session record if user is null
     if(Meteor.userId() === null) {
@@ -333,9 +356,10 @@ if (Meteor.isClient) {
       tmp_ratings.push(rating_id);
       Session.set('unsigned_ratings',tmp_ratings);
     } else {
-      Session.set('credit', Session.get('credit') + points_per_rating);
-      localStorage.setItem('credit', localStorage.credit + points_per_rating);
+      Session.set('credit', Session.get('credit') + pointsPerRating);
+      localStorage.setItem('credit', localStorage.credit + pointsPerRating);
     }
+    
     // return to welcome screen
     Meteor.Router.to('/');
   }
@@ -355,14 +379,7 @@ if (Meteor.isClient) {
   Template.figurePage.reviews = function () {
     return Reviews.find({
       figure_id: Session.get('figure_to_page')
-    }).map(function (x) {
-      return {
-                   text: x.text,
-                creator: x.creator,
-           creator_name: x.creator_name,
-        submission_time: moment(x.submission_time).fromNow()
-      };
-    });
+    }).map(dataExtractor1);
   };
   
   
@@ -376,36 +393,19 @@ if (Meteor.isClient) {
   Template.userPage.reviews = function () {
     return Reviews.find({
       creator: Session.get('user_to_page')
-    }).map(function (x) {
-      return {
-                   text: x.text,
-                creator: x.creator,
-           creator_name: x.creator_name,
-        submission_time: moment(x.submission_time).fromNow()
-      };
-    });
+    }).map(dataExtractor1);
   };
+  
+  function dataExtractor1(x) {
+    return {
+                 text: x.text,
+              creator: x.creator,
+         creator_name: x.creator_name,
+      submission_time: moment(x.submission_time).fromNow()
+    };
+  }
 }
 
-if (Meteor.isServer) {
-  
-  // Accounts.onCreateUser(function(options, user) {
-  //     if (options.profile) { // maintain the default behavior
-  //         user.profile = options.profile;
-  //     }
-  // 
-  //     // get profile data from Facebook
-  //     var result = Meteor.http.get("https://graph.facebook.com/me", {
-  //       params: {access_token: user.services.facebook.accessToken}});
-  // 
-  //     if ( !result.error && result.data ) {
-  //         // if successfully obtained facebook profile, save it off
-  //         user.profile.facebook = result.data;
-  //         user.email = result.data.email;
-  //     }
-  // 
-  //     return user;
-  // });
 if (Meteor.isServer) {  
   
   function getEmail(userId) {
