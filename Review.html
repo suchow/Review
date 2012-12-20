@@ -41,9 +41,9 @@
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>
 	    <p class="lead">Earn credits by writing and rating reviews of scientific plots and figures. Use the credits to get your figures reviewed.</p>
-			{{! #if hasenoughcreditforreview}}
+			{{#if hasenoughcreditforreview}}
 				<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i>&nbsp; Get a review &ndash;20</button>
-			{{! /if}}
+			{{/if}}
 			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i>&nbsp; Write a review +10</button>
 			<button type="submit" id="welcome-rate-review" class="btn btn-warning"><i class="icon-ok icon-white"></i>&nbsp; Rate a review +2</button>
 		</div>

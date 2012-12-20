@@ -257,6 +257,9 @@ if (Meteor.isClient) {
   });
   
   Template.getReview.rendered = function () {
+    if(Meteor.user() === null) {
+      Meteor.Router.to('/');
+    }
     filepicker.setKey("AcN4KNYMSeats1v5zAAhMz");
     filepicker.constructWidget(document.getElementById('get-review-upload-fp'));
   };
@@ -450,5 +453,6 @@ if (Meteor.isServer) {
 
   Meteor.startup(function () {
     // code to run on server at startup
+   
   });
 }
