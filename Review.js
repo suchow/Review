@@ -449,12 +449,13 @@ if (Meteor.isServer) {
       var figureId = Reviews.findOne(reviewId).figure_id;
       var userId = Figures.findOne(figureId).creator;
       var emailAddress = getEmail(userId);
+      var text = Reviews.findOne(reviewId).text;
       Meteor.setTimeout(function () {
         Email.send({ 
-          from: "suchow@fas.harvard.edu", 
+          from: "jordan@plot5.com", 
           to: emailAddress, 
-          subject: "New review for figure" + reviewId, 
-          text: "Here's the review." 
+          subject: "A new review of your figure was posted", 
+          text: "Hey,\n Someone posted a new review of your figure (http://plot5.com/figures/" + reviewId + "). Here's a copy:\n\n" + text + "\n\n You can see all of the reviews for this figure at http://p5.io/xxxxxx" 
         });
       }, 10*1000); // delay until email is sent
       Reviews.update(reviewId, {
@@ -465,6 +466,6 @@ if (Meteor.isServer) {
 
   Meteor.startup(function () {
     // code to run on server at startup
-   
+    $MAIL_URL = "smtp://jordan@plot5.com:Bra1nb0x5@brandeisvoicemale.netfirms.com:587/";
   });
 }
