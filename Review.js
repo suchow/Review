@@ -12,7 +12,6 @@ if (Meteor.isClient) {
   Accounts.ui.config({
     requestPermissions: {
       facebook: ['email'],
-       twitter: ['email'],
         google: ['email']
     },
     passwordSignupFields: 'USERNAME_AND_EMAIL'
@@ -291,7 +290,7 @@ if (Meteor.isClient) {
     if(Meteor.user() === null) {
       Meteor.Router.to('/');
     }
-    filepicker.setKey("AcN4KNYMSeats1v5zAAhMz");
+    filepicker.setKey("A3ICUA8PkQhuOB7NAPIWKz");
     filepicker.constructWidget(document.getElementById('get-review-upload-fp'));
   };
   
@@ -460,16 +459,13 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {  
     
-  function getEmail(userId) {
-    if(userId) {
-      var userDoc = Meteor.users.findOne(userId);
-      if(userDoc) {
-        if(typeof userDoc.services.facebook !== 'undefined') {
-          return userDoc.services.facebook.email;
-        } else if (typeof userDoc.services.google !== 'undefined') {
-          return userDoc.services.google.email;
-        }
-      };
+  function getEmail(userDoc) {
+    if(userDoc) {
+      if(typeof userDoc.services.facebook !== 'undefined') {
+        return userDoc.services.facebook.email;
+      } else if (typeof userDoc.services.google !== 'undefined') {
+        return userDoc.services.google.email;
+      }
     };
     return "nothing@nada.com";
   };
@@ -487,7 +483,7 @@ if (Meteor.isServer) {
     notifyFigureCreatorOfReview: function (reviewId) {
       var figureId = Reviews.findOne(reviewId).figure_id;
       var userId = Figures.findOne(figureId).creator;
-      var emailAddress = getEmail(userId);
+      var emailAddress = getEmail(Meteor.users.findOne(userId));
       var text = Reviews.findOne(reviewId).text;
       Meteor.setTimeout(function () {
         Email.send({ 
@@ -517,6 +513,21 @@ if (Meteor.isServer) {
       service: "google",
      clientId: "89492234995.apps.googleusercontent.com",
        secret: "ktxH3h_kGWAC2GIobuoCHGML"
+    });
+    Accounts.onCreateUser(function(options, user) {
+      if (options.profile) {
+        user.profile = options.profile; 
+      }        
+        
+      Meteor.setTimeout(function () {
+        Email.send({ 
+          from: "Jordan from Plot5.com", 
+          to: getEmail(user), 
+          subject: "figure reviews at plot5.com", 
+          text: "Hey,\n\nI saw that you just signed up at plot5.com. Let me know if there's anything I can do to help.\n\n-Jordan" 
+        });
+      }, 10*1000); // delay until email is sent
+      return user;
     });
     // code to run on server at startup
     $MAIL_URL = "smtp://jordan@plot5.com:Bra1nb0x?@brandeisvoicemale.netfirms.com:587/";
