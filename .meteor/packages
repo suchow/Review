@@ -9,7 +9,6 @@ preserve-inputs
 bootstrap
 accounts-ui
 accounts-facebook
-accounts-google
-accounts-twitter
 router
 email
+accounts-google

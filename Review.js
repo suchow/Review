@@ -12,6 +12,8 @@ if (Meteor.isClient) {
   Accounts.ui.config({
     requestPermissions: {
       facebook: ['email'],
+       twitter: ['email'],
+        google: ['email']
     },
     passwordSignupFields: 'USERNAME_AND_EMAIL'
   });
@@ -442,14 +444,16 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {  
-  
+    
   function getEmail(userId) {
     if(userId) {
       var userDoc = Meteor.users.findOne(userId);
       if(userDoc) {
         if(typeof userDoc.services.facebook !== 'undefined') {
           return userDoc.services.facebook.email;
-        };
+        } else if (typeof userDoc.services.google !== 'undefined') {
+          return userDoc.services.google.email;
+        }
       };
     };
     return "nothing@nada.com";
@@ -485,6 +489,16 @@ if (Meteor.isServer) {
   });
 
   Meteor.startup(function () {
+    Accounts.loginServiceConfiguration.insert({
+      service: "facebook",
+        appId: "517679251600238",
+       secret: "6441f24fc0865b88b063ff2a69bc05d5"
+    });
+    Accounts.loginServiceConfiguration.insert({
+      service: "google",
+     clientId: "89492234995.apps.googleusercontent.com",
+       secret: "ktxH3h_kGWAC2GIobuoCHGML"
+    });
     // code to run on server at startup
     $MAIL_URL = "smtp://jordan@plot5.com:Bra1nb0x5@brandeisvoicemale.netfirms.com:587/";
   });
