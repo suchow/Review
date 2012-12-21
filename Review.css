@@ -79,16 +79,13 @@ body {
   width: 100%;
 }
 
-#get-review-field, #get-review-description {
+#get-review-description {
   background: #eeeeee;
   width: 100%;
+  margin-top: 25px;
   max-width: 400px;
 }
 
-#get-review-field {
-  margin-top: 25px;
-  background: #eeeeee;
-}
 
 #get-review-upload-fp-wrapper {
   padding-top: 50px;

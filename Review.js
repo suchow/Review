@@ -217,10 +217,6 @@ if (Meteor.isClient) {
     return Session.get('fig_to_review').figure_url;
   };
   
-  Template.writeReview.figuretoreviewfields = function () {
-    return Session.get('fig_to_review').fields;
-  };
-  
   Template.writeReview.figuretoreviewdescription = function () {
     return Session.get('fig_to_review').description;
   };
@@ -254,7 +250,6 @@ if (Meteor.isClient) {
             submission_time: Date.now(),
                     creator: Session.get('tmpId'),
                  figure_url: Session.get('figure_url'),
-                     fields: document.getElementById("get-review-field").value,
                 description: document.getElementById("get-review-description").value,
                     reviews: new Array(), // list of review _id's
          acceptable_reviews: 0,
