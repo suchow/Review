@@ -80,6 +80,12 @@
 			<fieldset>
 				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review."></textarea></p>
 			<fieldset>
+			{{#if currentUser}}
+			<label class="checkbox">
+			  <input type="checkbox" checked="false" value="signed" id="write-review-signed">
+			  <p>Sign the review as <code>{{creator}}</code>. (Otherwise, you will appear as <code>Anonymous</code>.)</p>
+			</label>
+			{{/if}}
 			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn btn-info" /></p>
 		</form>
 	</div>
@@ -102,7 +108,6 @@
 
 <template name="figurePage">
 	<p><img src="{{figure}}" id="figure-page-preview" alt="Your figure" /></p>
-	<p>Share your figure: <a href="{{shortUrl}}">{{shortUrl}}</a></p>
 	<h4>Reviews:</h4>
 	{{#each reviews}}
 		<blockquote>

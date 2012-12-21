@@ -168,12 +168,21 @@ if (Meteor.isClient) {
   //
   Template.writeReview.events({
     'click #write-review-submit-button' : function () {
-            
+      
+     // signed or unsigned review?
+     if(Meteor.user()) {
+       if(document.getElementById("write-review-signed").checked) {
+         var thisCreator = Session.get('tmpId');
+       } else {
+         var thisCreator = Meteor.uuid();
+       };
+     };
+ 
      // create a new review record
      var id = Reviews.insert({
           submission_time: Date.now(),
-                  creator: Session.get('tmpId'),
-             creator_name: getName(Session.get('tmpId')), 
+                  creator: thisCreator,
+             creator_name: getName(thisCreator), 
                 figure_id: Session.get('fig_to_review')._id,
                      text: document.getElementById("write-review-description").value,
                raters_yes: new Array(),
@@ -187,7 +196,7 @@ if (Meteor.isClient) {
       // update figure record
       Figures.update(Session.get('fig_to_review')._id, {
         $push : { reviews: id },
-        $push : { reviewers: Session.get('tmpId') }
+        $push : { reviewers: thisCreator }
       });
       
       // update session record
@@ -216,6 +225,10 @@ if (Meteor.isClient) {
   Template.writeReview.figuretoreviewdescription = function () {
     return Session.get('fig_to_review').description;
   };
+  
+  Template.writeReview.creator = function () {
+    return getName(Meteor.userId());
+  }
 
   // 
   // Templates for the submitting screen
@@ -487,6 +500,10 @@ if (Meteor.isServer) {
       Reviews.update(reviewId, {
         $set : { notificationSent: true }
       });
+    },
+    shortenUrl: function () {
+      console.log('hello');
+      return 'hello';
     }
   });
 
@@ -502,6 +519,6 @@ if (Meteor.isServer) {
        secret: "ktxH3h_kGWAC2GIobuoCHGML"
     });
     // code to run on server at startup
-    $MAIL_URL = "smtp://jordan@plot5.com:Bra1nb0x5@brandeisvoicemale.netfirms.com:587/";
+    $MAIL_URL = "smtp://jordan@plot5.com:Bra1nb0x?@brandeisvoicemale.netfirms.com:587/";
   });
 }
