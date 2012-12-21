@@ -96,6 +96,8 @@ if (Meteor.isClient) {
       Meteor.call('getCredit', 
         function (error, result) { Session.set('credit', result) });
     }
+    
+    // make shortUrl for user page.
   });
   
   //
