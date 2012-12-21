@@ -60,6 +60,10 @@
 				</div>
 				<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
 			</fieldset>
+			<label class="checkbox">
+			  <input type="checkbox" checked="true" value="signed" id="get-review-public">
+			  <p>Public review. <span class="muted"><small>(Otherwise, we'll keep it private and give you a link to share with friends.)</small></span></p>
+			</label>
 			<p><input type="button" id="get-review-submit-button" value="Submit for review" class="btn btn btn-primary" /></p>
 		</form>
 	</div>
@@ -76,7 +80,7 @@
 		<p><strong>Description:</strong> {{figuretoreviewdescription}}</p>
 		<form>
 			<fieldset>
-				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review."></textarea></p>
+				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review." autofocus="autofocus"></textarea></p>
 			<fieldset>
 			{{#if currentUser}}
 			<label class="checkbox">
@@ -106,6 +110,12 @@
 
 <template name="figurePage">
 	<p><img src="{{figure}}" id="figure-page-preview" alt="Your figure" /></p>
+	{{#if isPrivate}}
+		<p><i class="icon-lock"></i> This figure is private. Get feedback from friends by sharing this link: <code>{{shortUrl}}</code>.</p>
+	{{/if}}
+	{{#unless isPrivate}}
+		<p>Share this figure by passing around the link, <code>{{shortUrl}}</code>.</p>
+	{{/unless}}
 	<h4>Reviews:</h4>
 	{{#each reviews}}
 		<blockquote>
@@ -113,7 +123,6 @@
 			<small><a href="/users/{{this.creator}}">{{this.creator_name}}</a>, {{this.submission_time}}</small>
 		</blockquote>
 	{{/each}}
-	<p>Share your figure by passing around this private link: <code>{{shortUrl}}</code>.</p>
 </template>
 
 <template name="userPage">

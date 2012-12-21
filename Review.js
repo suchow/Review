@@ -19,15 +19,19 @@ if (Meteor.isClient) {
   
   // routing
   Meteor.Router.add({
-    '/'       : 'welcome',
-    '/review' : 'writeReview',
-    '/submit' : 'getReview',
-    '/rate'   : 'rateReview',
+    '/'           : 'welcome',
+    '/review'     : 'writeReview',
+    '/review/:id'  : function(id) {
+      Session.set('fig_to_review', Figures.findOne(id));
+      return 'writeReview';
+    },
+    '/submit'     : 'getReview',
+    '/rate'       : 'rateReview',
     '/figures/:id': function(id) {
       Session.set('figure_to_page', id);
       return 'figurePage';
     },
-    '/users/:id' : function(id) {
+    '/users/:id'  : function(id) {
       Session.set('user_to_page', id);
       return 'userPage';
     }
@@ -130,7 +134,8 @@ if (Meteor.isClient) {
     'click #welcome-write-review' : function () {
       var fig = Figures.findOne({
           creator: {$ne: Session.get('tmpId')}, 
-        reviewers: {$ne: Session.get('tmpId')}}, 
+        reviewers: {$ne: Session.get('tmpId')}, 
+          private: {$ne: true}},
            {sort : {acceptable_reviews:1, submission_time:1}});
       if(fig) {
         Session.set('fig_to_review', fig);
@@ -149,7 +154,8 @@ if (Meteor.isClient) {
     'click #welcome-rate-review' : function () {
       var rev = Reviews.findOne({
           creator: {$ne: Session.get('tmpId')},
-       raters_all: {$ne: Session.get('tmpId')}}, 
+       raters_all: {$ne: Session.get('tmpId')},
+          private: {$ne: true}}, 
            {sort : { num_ratings:1, submission_time:1}});
      if(rev) {
        Session.set('reviewtorate', rev);
@@ -190,6 +196,7 @@ if (Meteor.isClient) {
               num_ratings: 0,
                acceptable: false,
          notificationSent: false,
+                  private: Session.get('fig_to_review').private
       });
                         
       // update figure record
@@ -245,6 +252,8 @@ if (Meteor.isClient) {
         return;
       } else {
 
+        var isPrivate = !document.getElementById("get-review-public").checked;
+
         // create a new figure
         var id = Figures.insert({
             submission_time: Date.now(),
@@ -253,6 +262,7 @@ if (Meteor.isClient) {
                 description: document.getElementById("get-review-description").value,
                     reviews: new Array(), // list of review _id's
          acceptable_reviews: 0,
+                    private: isPrivate,
                   reviewers: new Array() // list of reviewer id's
         });
 
@@ -269,14 +279,19 @@ if (Meteor.isClient) {
             }
           }
         );
-
-        if(Meteor.userId() !== null) {
+  
+        if(!isPrivate && (Meteor.userId() !== null)) {
           Session.set('credit', Session.get('credit') - pointsToSubmit);
           localStorage.setItem('credit', localStorage.credit - pointsToSubmit);
         };
 
-        Meteor.Router.to('/');
-        scroll(0,0);
+        if(isPrivate) {
+          Meteor.Router.to('/figures/' + id);
+          scroll(0,0);
+        } else {
+          Meteor.Router.to('/');
+          scroll(0,0);
+        }
       }
     }
   });
@@ -429,6 +444,29 @@ if (Meteor.isClient) {
     }
   };
   
+  Template.figurePage.isPrivate = function () {
+    var fig = Figures.findOne(Session.get('figure_to_page'));
+    if(fig) {
+      return fig.private;
+    }
+  };
+  
+  Template.figurePage.rendered = function () {
+    var fig = Figures.findOne(Session.get('figure_to_page'));
+    if(fig) {
+      if((fig.creator !== Meteor.userId()) && fig.private) {
+        Meteor.Router.to('/review/' + fig._id);
+      };
+    };
+  };
+  
+  // Template.figurePage.isCreator = function () {
+  //   var fig = Figures.findOne(Session.get('figure_to_page'));
+  //   if(fig && Meteor.user()) {
+  //     return fig.creator === Meteor.user();
+  //   }
+  // }
+  
   //
   // Templates for the user view
   //
@@ -485,7 +523,7 @@ if (Meteor.isServer) {
           from: "jordan@plot5.com", 
           to: emailAddress, 
           subject: "A new review of your figure was posted", 
-          text: "Hey,\n Someone posted a new review of your figure (http://plot5.com/figures/" + reviewId + "). Here's a copy:\n\n" + text + "\n\n You can see all of the reviews for this figure at http://p5.io/xxxxxx" 
+          text: "Hey,\nSomeone posted a new review of your figure (http://plot5.com/figures/" + reviewId + "). Here's a copy:\n\n" + text + "\n\nYou can see all of the reviews for this figure at http://p5.io/xxxxxx" 
         });
       }, 10*1000); // delay until email is sent
       Reviews.update(reviewId, {

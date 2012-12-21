@@ -145,6 +145,11 @@ body {
 /* CSS for figure preview screen */
 #figure-page-preview {
   max-width: 600px; 
+  width:100%;
   padding-top: 25px;
-  padding-bottom: 25px;
+  padding-bottom: 0px;
+}
+
+h4 {
+  padding-top: 15px;
 }
