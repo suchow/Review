@@ -36,75 +36,105 @@
 		  <button type="button" class="close" data-dismiss="alert">&times;</button>
 		  <strong>Wow!</strong> You've rated all available reviews. Come back later for more.
 		</div>
+		<div class="alert" id="alert-submit-credit">
+		  <button type="button" class="close" data-dismiss="alert">&times;</button>
+		  <strong>Heads up!</strong> You don't have enough credit to submit a figure. Get more by rating and reviewing. 
+		</div>
 	
 	<div id="welcome" class="container-narrow">
 		<div class="jumbotron">
 	  	<h1>Figure review</h1>
 	    <p class="lead">Earn credits by writing and rating reviews of scientific plots and figures. Use the credits to get your figures reviewed.</p>
-			{{#if hasenoughcreditforreview}}
-				<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i>&nbsp; Get a review &ndash;20</button>
-			{{/if}}
-			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i>&nbsp; Write a review +10</button>
 			<button type="submit" id="welcome-rate-review" class="btn btn-warning"><i class="icon-ok icon-white"></i>&nbsp; Rate a review +2</button>
+			<button type="submit" id="welcome-write-review" class="btn  btn-info"><i class="icon-pencil icon-white"></i>&nbsp; Write a review +10</button>
+			<button type="submit" id="welcome-get-review" class="btn  btn-primary"><i class="icon-envelope icon-white"></i>&nbsp; Get a review &ndash;20</button>
 		</div>
 	</div>	
 </template>
 
 <template name="getReview">
 	<div id="get-review">
-		<img src="" id="get-review-upload-preview" alt="uploaded figure" />
-		<form>
-			<fieldset>
-				<div id="get-review-upload-fp-wrapper">
-					<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" /></p>
-				</div>
-				<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
-			</fieldset>
-			<label class="checkbox">
-			  <input type="checkbox" checked="true" value="signed" id="get-review-public">
-			  <p>Public review. <span class="muted"><small>(Otherwise, we'll keep it private and give you a link to share with friends.)</small></span></p>
-			</label>
-			<p><input type="button" id="get-review-submit-button" value="Submit for review" class="btn btn btn-primary" /></p>
-		</form>
-	</div>
-	<div class="alert alert-error" id="alert-no-figure-upload">
-	  <button type="button" class="close" data-dismiss="alert">&times;</button>
-	  <strong>Hold on!</strong> You didn't upload a figure.
-	</div>
+		{{#unless hasEnoughCreditForReview}}
+			<div class="alert" id="alert-submit-credit2">
+			  <button type="button" class="close" data-dismiss="alert">&times;</button>
+			  <strong>Heads up!</strong> You don't have enough credit to submit a figure. Get more by <a href="/rate">rating</a> and <a href="/review">reviewing</a>. 
+			</div>
+		{{/unless}}
+		{{#if hasEnoughCreditForReview}}
+			{{#if uploaded}}
+				<img src="" id="get-review-upload-preview" alt="uploaded figure" />
+			{{/if}}
+			<form>
+				<fieldset>
+					{{#unless uploaded}}
+					<div id="get-review-upload-fp-wrapper">
+						<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" /></p>
+					</div>
+					{{/unless}}
+					<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
+				</fieldset>
+				<label class="checkbox">
+				  <input type="checkbox" checked="true" value="signed" id="get-review-public">
+				  <p>Public review. <span class="muted"><small>(Otherwise, we'll keep it private and give you a link to share with friends.)</small></span></p>
+				</label>
+				<p><input type="button" id="get-review-submit-button" value="Submit for review" class="btn btn btn-primary" /></p>
+			</form>
+		</div>
+		<div class="alert alert-error" id="alert-no-figure-upload">
+		  <button type="button" class="close" data-dismiss="alert">&times;</button>
+		  <strong>Hold on!</strong> You didn't upload a figure.
+		</div>
+	{{/if}}
 </template>
 
 <template name="writeReview">
 	<div id="write-review">
-		<p>Please review the following figure:</p>
-		<p><img src="{{figuretoreview}}" id="write-review-fig-preview" alt="uploaded figure" /></p>
-		<p><strong>Description:</strong> {{figuretoreviewdescription}}</p>
-		<form>
-			<fieldset>
-				<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review." autofocus="autofocus"></textarea></p>
-			<fieldset>
-			{{#if currentUser}}
-			<label class="checkbox">
-			  <input type="checkbox" checked="false" value="signed" id="write-review-signed">
-			  <p>Sign the review as <code>{{creator}}</code>. (Otherwise, you will appear as <code>Anonymous</code>.)</p>
-			</label>
-			{{/if}}
-			<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn btn-info" /></p>
-		</form>
+		{{#unless isFigureAvailable}}
+			<div class="alert alert-info" id="write-review-alert">
+			  <button type="button" class="close" data-dismiss="alert">&times;</button>
+			  <strong>Wow!</strong> You've reviewed all available figures. Come back later for more.
+			</div>
+		{{/unless}}
+		{{#if isFigureAvailable}}
+			<p>Please review the following figure:</p>
+			<p><img src="{{figureUrl}}" id="write-review-fig-preview" alt="uploaded figure" /></p>
+			<p><strong>Description:</strong> {{figuretoreviewdescription}}</p>
+			<form>
+				<fieldset>
+					<p><textarea rows="12" cols="65" id="write-review-description" placeholder="Write your review." autofocus="autofocus"></textarea></p>
+				<fieldset>
+				{{#if currentUser}}
+				<label class="checkbox">
+				  <input type="checkbox" checked="false" value="signed" id="write-review-signed">
+				  <p>Sign the review as <code>{{creator}}</code>. (Otherwise, you will appear as <code>Anonymous</code>.)</p>
+				</label>
+				{{/if}}
+				<p><input type="button" id="write-review-submit-button" value="Submit your review" class="btn btn btn-info" /></p>
+			</form>
+		{{/if}}
 	</div>
 </template>
 
 <template name="rateReview">
 	<div id="rate-review">
-		<p>Please rate the following review:</p>
-		<blockquote>
-			{{{reviewtorate}}}
-			<small><a href="/users/{{creator}}">{{creator_name}}</a>, {{submission_time}}</small>
-		</blockquote>
-		<p>
-			Is it acceptable? 
-			<button class="btn btn-small btn-success rate-review" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
-			<button class="btn btn-small btn-danger rate-review" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
-		</p>
+		{{#unless isReviewAvailable}}
+			<div class="alert alert-info" id="write-review-alert">
+			  <button type="button" class="close" data-dismiss="alert">&times;</button>
+			  <strong>Wow!</strong> You've rated all available reviews. Come back later for more.
+			</div>
+		{{/unless}}
+		{{#if isReviewAvailable}}
+			<p>Please rate the following review:</p>
+			<blockquote>
+				{{{reviewtorate}}}
+				<small><a href="/users/{{creator}}">{{creator_name}}</a>, {{submission_time}}</small>
+			</blockquote>
+			<p>
+				Is it acceptable? 
+				<button class="btn btn-small btn-success rate-review" type="button" id="rate-review-yes"><i class="icon-ok"></i></button>
+				<button class="btn btn-small btn-danger rate-review" type="button" id="rate-review-no"><i class="icon-remove"></i></button>		
+			</p>
+		{{/if}}
 	</div>
 </template>
 
@@ -116,7 +146,10 @@
 	{{#unless isPrivate}}
 		<p>Share this figure by passing around the link, <code>{{shortUrl}}</code>.</p>
 	{{/unless}}
-	<h4>Reviews:</h4>
+	<h4>Reviews</h4>
+	{{#unless reviews}}
+		<p class="text-warning">Hold your horses, there aren't any reviews yet.</p>
+	{{/unless}}
 	{{#each reviews}}
 		<blockquote>
 			{{this.text}}

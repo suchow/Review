@@ -8,35 +8,7 @@ pointsToSubmit = 20;
 
 if (Meteor.isClient) {  
   
-  // accounts
-  Accounts.ui.config({
-    requestPermissions: {
-      facebook: ['email'],
-        google: ['email']
-    },
-    passwordSignupFields: 'USERNAME_AND_EMAIL'
-  });
-  
-  // routing
-  Meteor.Router.add({
-    '/'           : 'welcome',
-    '/review'     : 'writeReview',
-    '/review/:id'  : function(id) {
-      Session.set('fig_to_review', Figures.findOne(id));
-      return 'writeReview';
-    },
-    '/submit'     : 'getReview',
-    '/rate'       : 'rateReview',
-    '/figures/:id': function(id) {
-      Session.set('figure_to_page', id);
-      return 'figurePage';
-    },
-    '/users/:id'  : function(id) {
-      Session.set('user_to_page', id);
-      return 'userPage';
-    }
-  });
-  
+  // User functions
   Session.set('unsigned_ratings', new Array());
   Session.set('unsigned_reviews', new Array());
   
@@ -68,6 +40,39 @@ if (Meteor.isClient) {
       function (error, result) { Session.set('credit', result) });
     Session.set('tmpId', Meteor.userId());
   }
+  
+  // accounts
+  Accounts.ui.config({
+    requestPermissions: {
+      facebook: ['email'],
+        google: ['email']
+    },
+    passwordSignupFields: 'USERNAME_AND_EMAIL'
+  });
+  
+  // routing
+  Meteor.Router.add({
+    '/'           : 'welcome',
+    '/review'     : function () {
+      var figureToReviewId = getFigureToReviewId();
+      Session.set('figureToReviewId', figureToReviewId);
+      return 'writeReview';
+    },
+    '/submit'     : 'getReview',
+    '/rate'       : function() {
+      var rev = getReviewToRate();
+      Session.set('reviewtorate', rev); 
+      return 'rateReview';
+    },
+    '/figures/:id': function(id) {
+      Session.set('figure_to_page', id);
+      return 'figurePage';
+    },
+    '/users/:id'  : function(id) {
+      Session.set('user_to_page', id);
+      return 'userPage';
+    }
+  });
   
   //
   // Actions to take when a user signs in
@@ -118,6 +123,33 @@ if (Meteor.isClient) {
            pointsPerReview*Session.get('unsigned_reviews').length;
   };
   
+  function getFigureToReviewId() {
+     var fig = Figures.findOne({
+          creator: {$ne: Session.get('tmpId')}, 
+        reviewers: {$ne: Session.get('tmpId')}, 
+          private: {$ne: true}},
+           {sort : {acceptable_reviews:1, submission_time:1}});
+    
+    if(typeof fig === 'undefined') {
+      return null;
+    } else {
+      return fig._id;
+    }
+  }
+  
+  function getReviewToRate() {
+    var rev = Reviews.findOne({
+        creator: {$ne: Session.get('tmpId')},
+     raters_all: {$ne: Session.get('tmpId')},
+        private: {$ne: true}}, 
+         {sort : { num_ratings:1, submission_time:1}});
+    if(typeof rev === 'undefined') {
+      return null;
+    } else {
+      return rev;
+    }
+  }
+  
   Template.welcome.hasoutstandingcredit = function () {
     return (unsigned_credits() > 0);
   };
@@ -132,14 +164,10 @@ if (Meteor.isClient) {
 
   Template.welcome.events({
     'click #welcome-write-review' : function () {
-      var fig = Figures.findOne({
-          creator: {$ne: Session.get('tmpId')}, 
-        reviewers: {$ne: Session.get('tmpId')}, 
-          private: {$ne: true}},
-           {sort : {acceptable_reviews:1, submission_time:1}});
-      if(fig) {
-        Session.set('fig_to_review', fig);
-        Meteor.Router.to('/review');
+      var figureToReviewId = getFigureToReviewId();
+      if(figureToReviewId) {
+        Session.set('figureToReviewId', figureToReviewId);
+        Meteor.Router.to('/review/');
       } else {
         // if the alert isn't already up, put it up
         var el = document.getElementById('alert-review');
@@ -148,15 +176,19 @@ if (Meteor.isClient) {
     },
     
     'click #welcome-get-review' : function () {
-      Meteor.Router.to('/submit');
+      // check if user and if has enough credit
+      console.log('got here');
+      if(Meteor.user() && (Session.get('credit') >= pointsToSubmit)) {
+        Meteor.Router.to('/submit');  
+      } else {
+        // if the alert isn't already up, put it up
+        var el = document.getElementById('alert-submit-credit');
+        if(el) { el.style.display = "block"; }
+      };
     },
     
     'click #welcome-rate-review' : function () {
-      var rev = Reviews.findOne({
-          creator: {$ne: Session.get('tmpId')},
-       raters_all: {$ne: Session.get('tmpId')},
-          private: {$ne: true}}, 
-           {sort : { num_ratings:1, submission_time:1}});
+     rev = getReviewToRate();
      if(rev) {
        Session.set('reviewtorate', rev);
        Meteor.Router.to('/rate');
@@ -175,12 +207,10 @@ if (Meteor.isClient) {
     'click #write-review-submit-button' : function () {
       
      // signed or unsigned review?
-     if(Meteor.user()) {
-       if(document.getElementById("write-review-signed").checked) {
-         var thisCreator = Session.get('tmpId');
-       } else {
-         var thisCreator = Meteor.uuid();
-       };
+     if(Meteor.user() && !document.getElementById("write-review-signed").checked) {
+       var thisCreator = Meteor.uuid();     
+     } else {
+       var thisCreator = Session.get('tmpId');
      };
  
      // create a new review record
@@ -188,7 +218,7 @@ if (Meteor.isClient) {
           submission_time: Date.now(),
                   creator: thisCreator,
              creator_name: getName(thisCreator), 
-                figure_id: Session.get('fig_to_review')._id,
+                figure_id: Session.get('figureToReviewId'),
                      text: document.getElementById("write-review-description").value,
                raters_yes: new Array(),
                 raters_no: new Array(),
@@ -196,11 +226,11 @@ if (Meteor.isClient) {
               num_ratings: 0,
                acceptable: false,
          notificationSent: false,
-                  private: Session.get('fig_to_review').private
+                  private: Figures.findOne(Session.get('figureToReviewId')).private
       });
                         
       // update figure record
-      Figures.update(Session.get('fig_to_review')._id, {
+      Figures.update(Session.get('figureToReviewId'), {
         $push : { reviews: id },
         $push : { reviewers: thisCreator }
       });
@@ -220,12 +250,16 @@ if (Meteor.isClient) {
     }
   });
   
-  Template.writeReview.figuretoreview = function () {
-    return Session.get('fig_to_review').figure_url;
+  Template.writeReview.figureUrl = function () {
+    return Figures.findOne(Session.get('figureToReviewId')).figure_url;
+  };
+  
+  Template.writeReview.isFigureAvailable = function () {
+    return Figures.findOne(Session.get('figureToReviewId'));
   };
   
   Template.writeReview.figuretoreviewdescription = function () {
-    return Session.get('fig_to_review').description;
+    return Figures.findOne(Session.get('figureToReviewId')).description;
   };
   
   Template.writeReview.creator = function () {
@@ -241,8 +275,7 @@ if (Meteor.isClient) {
       // show the newly uploaded figure
       var img = document.getElementById('get-review-upload-preview');
       img.src = Session.get('figure_url');
-      document.getElementById('get-review-upload-fp-wrapper').style.display = "none";
-      document.getElementById('get-review-upload-preview').style.display = "block";
+      Session.set('figureUploaded', true);
     },
     
     'click #get-review-submit-button' : function () {
@@ -285,13 +318,8 @@ if (Meteor.isClient) {
           localStorage.setItem('credit', localStorage.credit - pointsToSubmit);
         };
 
-        if(isPrivate) {
-          Meteor.Router.to('/figures/' + id);
-          scroll(0,0);
-        } else {
-          Meteor.Router.to('/');
-          scroll(0,0);
-        }
+        Meteor.Router.to('/figures/' + id);
+        scroll(0,0);
       }
     }
   });
@@ -307,6 +335,14 @@ if (Meteor.isClient) {
   Template.getReview.created = function () {
     Session.set('figure_url', null);
   };
+  
+  Template.getReview.uploaded = function () {
+    return Session.get('figureUploaded');
+  };
+  
+  Template.getReview.hasEnoughCreditForReview = function () {
+    return Session.get('credit') >= pointsToSubmit;
+  }; 
   
   // 
   // Templates for the rating view
@@ -336,6 +372,11 @@ if (Meteor.isClient) {
     return Session.get('reviewtorate').figure_url;
   };
   
+  Template.rateReview.isReviewAvailable = function () {
+    console.log(Session.get('reviewtorate'));
+    return Session.get('reviewtorate');
+  };
+   
   Template.rateReview.events({
     'click #rate-review-yes' : function (evt) { 
       updateAfterRating(1);  
@@ -508,9 +549,9 @@ if (Meteor.isServer) {
       if(this.userId === null) {
         return 0;
       } else {
-        return 10*Reviews.find({creator: this.userId}).count() + 
-                2*Ratings.find({creator: this.userId}).count() -
-               20*Figures.find({creator: this.userId}).count();  
+        return pointsPerReview*Reviews.find({creator: this.userId}).count() + 
+               pointsPerRating*Ratings.find({creator: this.userId}).count() -
+                pointsToSubmit*Figures.find({creator: this.userId}).count();  
       }
     },
     notifyFigureCreatorOfReview: function (reviewId) {
@@ -523,17 +564,13 @@ if (Meteor.isServer) {
           from: "jordan@plot5.com", 
           to: emailAddress, 
           subject: "A new review of your figure was posted", 
-          text: "Hey,\nSomeone posted a new review of your figure (http://plot5.com/figures/" + reviewId + "). Here's a copy:\n\n" + text + "\n\nYou can see all of the reviews for this figure at http://p5.io/xxxxxx" 
+          text: "Hey,\nSomeone posted a new review of your figure (http://plot5.com/figures/" + Figures.findOne(figureId).shortUrl + "). Here's a copy:\n\n" + text + "\n\nYou can see all of the reviews for this figure at http://p5.io/xxxxxx" 
         });
       }, 10*1000); // delay until email is sent
       Reviews.update(reviewId, {
         $set : { notificationSent: true }
       });
     },
-    shortenUrl: function () {
-      console.log('hello');
-      return 'hello';
-    }
   });
 
   Meteor.startup(function () {

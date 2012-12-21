@@ -58,13 +58,14 @@ body {
   width: 75%;
 }
 
-#alert-rating, #alert-review, #alert-credit, #alert-no-figure-upload {
+#alert-rating, #alert-review, #alert-credit, #alert-no-figure-upload, 
+#alert-submit-credit, #alert-submit-credit2, #write-review-alert, #rate-review-alert {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-#alert-rating, #alert-review {
+#alert-rating, #alert-review, #alert-submit-credit {
   display: none;
 }
 
@@ -74,7 +75,6 @@ body {
 }
 
 #get-review-upload-preview {
-  display: none;
   max-width: 600px;
   width: 100%;
 }
