@@ -503,17 +503,6 @@ if (Meteor.isClient) {
     };
   };
   
-  // Template.figurePage.figureUrl = function () {
-  //   return Figures.findOne(Session.get('figureToReviewId')).figure_url;
-  // };
-  
-  // Template.figurePage.isCreator = function () {
-  //   var fig = Figures.findOne(Session.get('figure_to_page'));
-  //   if(fig && Meteor.user()) {
-  //     return fig.creator === Meteor.user();
-  //   }
-  // }
-  
   //
   // Templates for the user view
   //
@@ -570,8 +559,8 @@ if (Meteor.isServer) {
         Email.send({ 
           from: "jordan@plot5.com", 
           to: emailAddress, 
-          subject: "A new review of your figure was posted", 
-          text: "Hey,\nSomeone posted a new review of your figure (http://plot5.com/figures/" + Figures.findOne(figureId).shortUrl + "). Here's a copy:\n\n" + text + "\n\nYou can see all of the reviews for this figure at http://p5.io/xxxxxx" 
+          subject: "[plot5] A new review was posted", 
+          text: "Hey,\n\nSomeone posted a new review of your figure (" + Figures.findOne(figureId).shortUrl + "). Here's a copy of the review:\n\"" + text + "\"", 
         });
       }, 10*1000); // delay until email is sent
       Reviews.update(reviewId, {

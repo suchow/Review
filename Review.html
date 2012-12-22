@@ -10,17 +10,6 @@
 	</div>
 </body>
 
-<template name="quickJump">
-	<div id="quickJump">
-	<p>
-		<span class="badge badge-warning"><a href="/rate"><i class="icon-ok icon-white"></i></a></span>
-		<span class="badge badge-info"><a href="/review"><i class="icon-pencil icon-white"></i></a></span>
-		<span class="badge" style="background:#006dcc;"><a href="/submit"><i class="icon-share-alt icon-white"></i></a></span>
-		
-	</p>
-	</div>
-</template>
-
 <template name="login">
 	<div id="login">
 		{{> quickJump}}
@@ -28,6 +17,17 @@
 		{{#if currentUser}}
 			&nbsp;{{credit}} credits
 		{{/if}}
+	</div>
+</template>
+
+<template name="quickJump">
+	<div id="quickJump">
+	<p>
+		<a href="/rate"><span class="badge badge-warning"><i class="icon-ok icon-white"></i></span></a>
+		<a href="/review"><span class="badge badge-info"><i class="icon-pencil icon-white"></i></span></a>
+		<a href="/submit"><span class="badge" style="background:#006dcc;"><i class="icon-share-alt icon-white"></i></span></a>
+		
+	</p>
 	</div>
 </template>
 
@@ -81,7 +81,7 @@
 			<form>
 				<fieldset>
 					<div id="get-review-upload-fp-wrapper">
-						<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" data-fp-extension="jpg"/></p>
+						<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" /></p>
 					</div>
 					<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure." autofocus="autofocus"></textarea></p>
 				</fieldset>
@@ -169,10 +169,6 @@
 		<p class="text-warning">Hold your horses, there aren't any reviews yet.</p>
 	{{/unless}}
 	{{#each reviews}}
-		<blockquote>
-			{{this.text}}
-			<small><a href="/users/{{this.creator}}">{{this.creator_name}}</a>, {{this.submission_time}}</small>
-		</blockquote>
 		{{#if this.acceptable}}
 			<blockquote>		
 				{{this.text}}
