@@ -132,6 +132,7 @@ body {
 /* CSS for login */
 #login {
   float: right;
+  text-align: right;
 }
 
 .login-link-text {
@@ -140,6 +141,11 @@ body {
 
 #login-badge {
   margin-left: 7px;
+}
+
+#quickJump {
+  text-align:right;
+  margin-bottom: 5px;
 }
 
 /* CSS for figure preview screen */

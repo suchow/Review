@@ -10,11 +10,23 @@
 	</div>
 </body>
 
+<template name="quickJump">
+	<div id="quickJump">
+	<p>
+		<span class="badge badge-warning"><a href="/rate"><i class="icon-ok icon-white"></i></a></span>
+		<span class="badge badge-info"><a href="/review"><i class="icon-pencil icon-white"></i></a></span>
+		<span class="badge" style="background:#006dcc;"><a href="/submit"><i class="icon-envelope icon-white"></i></a></span>
+		
+	</p>
+	</div>
+</template>
+
 <template name="login">
 	<div id="login">
+		{{> quickJump}}
 		{{loginButtons align="right"}}
 		{{#if currentUser}}
-			<span id="login-badge" class="badge">{{credit}} credits</span>
+			&nbsp;{{credit}} credits
 		{{/if}}
 	</div>
 </template>
