@@ -59,13 +59,14 @@ body {
 }
 
 #alert-rating, #alert-review, #alert-credit, #alert-no-figure-upload, 
-#alert-submit-credit, #alert-submit-credit2, #write-review-alert, #rate-review-alert {
+#alert-submit-credit, #alert-submit-credit2, #write-review-alert, #rate-review-alert,
+#alert-submit-signedin {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-#alert-rating, #alert-review, #alert-submit-credit {
+#alert-rating, #alert-review, #alert-submit-credit, #alert-submit-signedin {
   display: none;
 }
 

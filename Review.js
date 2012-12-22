@@ -4,7 +4,7 @@ Ratings = new Meteor.Collection("ratings");
 
 pointsPerReview = 10;
 pointsPerRating = 2; 
-pointsToSubmit = 20;
+pointsToSubmit = 0;
 
 if (Meteor.isClient) {  
   
@@ -26,7 +26,7 @@ if (Meteor.isClient) {
   if (Meteor.userId() === null) {
     
     // check if they have a tmpId in local storage
-    if(localStorage.tmpId) {
+    if(localStorage.tmpId && (typeof localStorage.credit != 'undefined')) {
       Session.set('tmpId', localStorage.tmpId); // generate a new temporary id 
       Session.set('credit', localStorage.credit);
     } else {
@@ -176,13 +176,15 @@ if (Meteor.isClient) {
     },
     
     'click #welcome-get-review' : function () {
-      // check if user and if has enough credit
-      console.log('got here');
-      if(Meteor.user() && (Session.get('credit') >= pointsToSubmit)) {
+      var hasEnoughCredit = (Session.get('credit') >= pointsToSubmit);
+      
+      if(Meteor.user() && hasEnoughCredit) {
         Meteor.Router.to('/submit');  
-      } else {
-        // if the alert isn't already up, put it up
+      } else if (!hasEnoughCredit) {
         var el = document.getElementById('alert-submit-credit');
+        if(el) { el.style.display = "block"; }
+      } else if (!Meteor.user()) {
+        var el = document.getElementById('alert-submit-signedin');
         if(el) { el.style.display = "block"; }
       };
     },
@@ -373,7 +375,6 @@ if (Meteor.isClient) {
   };
   
   Template.rateReview.isReviewAvailable = function () {
-    console.log(Session.get('reviewtorate'));
     return Session.get('reviewtorate');
   };
    
