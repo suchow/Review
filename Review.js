@@ -41,15 +41,6 @@ if (Meteor.isClient) {
     Session.set('tmpId', Meteor.userId());
   }
   
-  // accounts
-  Accounts.ui.config({
-    requestPermissions: {
-      facebook: ['email'],
-        google: ['email']
-    },
-    passwordSignupFields: 'USERNAME_AND_EMAIL'
-  });
-  
   // routing
   Meteor.Router.add({
     '/'           : 'welcome',
