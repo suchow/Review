@@ -532,6 +532,7 @@ if (Meteor.isClient) {
                  text: x.text,
               creator: x.creator,
          creator_name: x.creator_name,
+           acceptable: x.acceptable,
       submission_time: moment(x.submission_time).fromNow()
     };
   }

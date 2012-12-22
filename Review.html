@@ -173,6 +173,12 @@
 			{{this.text}}
 			<small><a href="/users/{{this.creator}}">{{this.creator_name}}</a>, {{this.submission_time}}</small>
 		</blockquote>
+		{{#if this.acceptable}}
+			<blockquote>		
+				{{this.text}}
+				<small><a href="/users/{{this.creator}}">{{this.creator_name}}</a>, {{this.submission_time}}</small>
+			</blockquote>
+		{{/if}}
 	{{/each}}
 </template>
 
