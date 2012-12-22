@@ -76,17 +76,13 @@
 			  <strong>Heads up!</strong> You don't have enough credit to submit a figure. Get more by <a href="/rate">rating</a> and <a href="/review">reviewing</a>. 
 			</div>
 		{{/unless}}
+		<img src="" id="get-review-upload-preview" alt="uploaded figure" />
 		{{#if hasEnoughCreditForReview}}
-			{{#if uploaded}}
-				<img src="" id="get-review-upload-preview" alt="uploaded figure" />
-			{{/if}}
 			<form>
 				<fieldset>
-					{{#unless uploaded}}
 					<div id="get-review-upload-fp-wrapper">
 						<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" /></p>
 					</div>
-					{{/unless}}
 					<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
 				</fieldset>
 				<label class="checkbox">

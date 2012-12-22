@@ -78,6 +78,7 @@ body {
 #get-review-upload-preview {
   max-width: 600px;
   width: 100%;
+  display: none;
 }
 
 #get-review-description {

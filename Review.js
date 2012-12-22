@@ -276,8 +276,9 @@ if (Meteor.isClient) {
       Session.set('figure_url', evt.files[0].url);
       // show the newly uploaded figure
       var img = document.getElementById('get-review-upload-preview');
+      img.style.display = 'block';
       img.src = Session.get('figure_url');
-      Session.set('figureUploaded', true);
+      document.getElementById('get-review-upload-fp-wrapper').style.display = "none";
     },
     
     'click #get-review-submit-button' : function () {
@@ -336,10 +337,6 @@ if (Meteor.isClient) {
   
   Template.getReview.created = function () {
     Session.set('figure_url', null);
-  };
-  
-  Template.getReview.uploaded = function () {
-    return Session.get('figureUploaded');
   };
   
   Template.getReview.hasEnoughCreditForReview = function () {
