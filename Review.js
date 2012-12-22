@@ -247,6 +247,10 @@ if (Meteor.isClient) {
     return Figures.findOne(Session.get('figureToReviewId')).figure_url;
   };
   
+  Template.writeReview.isFigurePdf = function () {
+    return Figures.findOne(Session.get('figureToReviewId')).figure_type === 'application/pdf';
+  }
+  
   Template.writeReview.isFigureAvailable = function () {
     return Figures.findOne(Session.get('figureToReviewId'));
   };
@@ -264,12 +268,15 @@ if (Meteor.isClient) {
   //
   Template.getReview.events({
     'change #get-review-upload-fp': function(evt) {
+      Session.set('figure_type', evt.files[0].data.type);
       Session.set('figure_url', evt.files[0].url);
       // show the newly uploaded figure
-      var img = document.getElementById('get-review-upload-preview');
-      img.style.display = 'block';
-      img.src = Session.get('figure_url');
-      document.getElementById('get-review-upload-fp-wrapper').style.display = "none";
+      if(evt.files[0].data.type !== 'application/pdf') {
+        var img = document.getElementById('get-review-upload-preview');
+        img.style.display = 'block';
+        img.src = Session.get('figure_url');
+        document.getElementById('get-review-upload-fp-wrapper').style.display = "none";
+      }
     },
     
     'click #get-review-submit-button' : function () {
@@ -286,6 +293,7 @@ if (Meteor.isClient) {
             submission_time: Date.now(),
                     creator: Session.get('tmpId'),
                  figure_url: Session.get('figure_url'),
+                figure_type: Session.get('figure_type'),
                 description: document.getElementById("get-review-description").value,
                     reviews: new Array(), // list of review _id's
          acceptable_reviews: 0,
@@ -333,6 +341,7 @@ if (Meteor.isClient) {
   Template.getReview.hasEnoughCreditForReview = function () {
     return Session.get('credit') >= pointsToSubmit;
   }; 
+  
   
   // 
   // Templates for the rating view
@@ -454,11 +463,15 @@ if (Meteor.isClient) {
   // Templates for the figure view
   //
   Template.figurePage.figure = function () {
-    // todo: check permissions
     var fig = Figures.findOne(Session.get('figure_to_page'));
     if(fig) {
       return fig.figure_url;
     }
+  };
+  
+  Template.figurePage.isFigurePdf = function () {
+    var fig = Figures.findOne(Session.get('figure_to_page'));
+    if(fig) { return fig.figure_type === 'application/pdf'; }
   };
     
   Template.figurePage.reviews = function () {
@@ -489,6 +502,10 @@ if (Meteor.isClient) {
       };
     };
   };
+  
+  // Template.figurePage.figureUrl = function () {
+  //   return Figures.findOne(Session.get('figureToReviewId')).figure_url;
+  // };
   
   // Template.figurePage.isCreator = function () {
   //   var fig = Figures.findOne(Session.get('figure_to_page'));
@@ -583,7 +600,7 @@ if (Meteor.isServer) {
           from: "Jordan from Plot5.com", 
           to: getEmail(user), 
           subject: "figure reviews at plot5.com", 
-          text: "Hey,\n\nI saw that you just signed up at plot5.com. Let me know if there's anything I can do to help.\n\n-Jordan" 
+          text: "Hey,\n\nI saw that you signed up at plot5.com. Let me know if there's anything I can do to help.\n\n-Jordan" 
         });
       }, 10*1000); // delay until email is sent
       return user;

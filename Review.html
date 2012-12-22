@@ -81,9 +81,9 @@
 			<form>
 				<fieldset>
 					<div id="get-review-upload-fp-wrapper">
-						<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" /></p>
+						<p><input type="filepicker-dragdrop" data-fp-drag-text="&hellip; or drop it here" data-fp-drag-class="fp-drag" id="get-review-upload-fp" data-fp-button-class="btn" data-fp-button-text="Upload a figure" data-fp-extension="jpg"/></p>
 					</div>
-					<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure."></textarea></p>
+					<p><textarea rows="8" cols="65" id="get-review-description" placeholder="Describe the figure." autofocus="autofocus"></textarea></p>
 				</fieldset>
 				<label class="checkbox">
 				  <input type="checkbox" checked="true" value="signed" id="get-review-public">
@@ -108,8 +108,10 @@
 			</div>
 		{{/unless}}
 		{{#if isFigureAvailable}}
-			<p>Please review the following figure:</p>
-			<p><img src="{{figureUrl}}" id="write-review-fig-preview" alt="uploaded figure" /></p>
+			<p>Please review the following figure (<a href="{{figureUrl}}">download file</a>).</p>
+			{{#unless isFigurePdf}}
+				<p><img src="{{figureUrl}}" id="write-review-fig-preview" alt="uploaded figure" /></p>
+			{{/unless}}
 			<p><strong>Description:</strong> {{figuretoreviewdescription}}</p>
 			<form>
 				<fieldset>
@@ -151,7 +153,11 @@
 </template>
 
 <template name="figurePage">
-	<p><img src="{{figure}}" id="figure-page-preview" alt="Your figure" /></p>
+	{{#if isFigurePdf}}
+		Preview unavailable (<a href="{{figure}}">download file</a>).
+	{{else}}
+		<p><img src="{{figure}}" id="figure-page-preview" alt="Your figure" /></p>
+	{{/if}}
 	{{#if isPrivate}}
 		<p><i class="icon-lock"></i> This figure is private. Get feedback from friends by sharing this link: <code>{{shortUrl}}</code>.</p>
 	{{/if}}

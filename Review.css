@@ -60,13 +60,14 @@ body {
 
 #alert-rating, #alert-review, #alert-credit, #alert-no-figure-upload, 
 #alert-submit-credit, #alert-submit-credit2, #write-review-alert, #rate-review-alert,
-#alert-submit-signedin {
+#alert-submit-signedin, #alert-figure-uploaded {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-#alert-rating, #alert-review, #alert-submit-credit, #alert-submit-signedin {
+#alert-rating, #alert-review, #alert-submit-credit, #alert-submit-signedin,
+#alert-figure-uploaded {
   display: none;
 }
 
@@ -76,7 +77,8 @@ body {
 }
 
 #get-review-upload-preview {
-  max-width: 600px;
+  max-width: 200px;
+  max-height: 200px;
   width: 100%;
   display: none;
 }
